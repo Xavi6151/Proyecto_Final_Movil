@@ -85,7 +85,7 @@ fun MenuNotas(notas: Notas, modifier: Modifier = Modifier){
         ){
             Box{
                 Image(
-                    painter = painterResource(id = R.drawable.image),
+                    painter = painterResource(id = R.drawable.nota),
                     contentDescription = null,
                     modifier = modifier
                         .size(
@@ -144,7 +144,7 @@ fun MenuTareas(tareas: Tareas, modifier: Modifier = Modifier){
         ){
             Box{
                 Image(
-                    painter = painterResource(id = R.drawable.image),
+                    painter = painterResource(id = R.drawable.tarea),
                     contentDescription = null,
                     modifier = modifier
                         .size(
@@ -255,7 +255,7 @@ fun app(modifier: Modifier = Modifier){
                 ) {
                     Box{
                         Image(
-                            painter = painterResource(id = R.drawable.book),
+                            painter = painterResource(id = R.drawable.traductor),
                             contentDescription = null,
                             modifier = modifier
                                 .size(
@@ -270,7 +270,7 @@ fun app(modifier: Modifier = Modifier){
                 Button(onClick = { /*TODO*/ }) {
                     Box{
                         Image(
-                            painter = painterResource(id = R.drawable.image),
+                            painter = painterResource(id = R.drawable.a_adir),
                             contentDescription = null,
                             modifier = modifier
                                 .size(
@@ -285,7 +285,7 @@ fun app(modifier: Modifier = Modifier){
                 Button(onClick = { /*TODO*/ }) {
                     Box{
                         Image(
-                            painter = painterResource(id = R.drawable.lupa),
+                            painter = painterResource(id = R.drawable.buscar),
                             contentDescription = null,
                             modifier = modifier
                                 .size(
