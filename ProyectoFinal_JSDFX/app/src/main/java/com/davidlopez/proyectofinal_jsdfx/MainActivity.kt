@@ -215,7 +215,7 @@ fun app(modifier: Modifier = Modifier){
                 Row (
                     modifier = Modifier
                         .height(64.dp)
-                        .background(Color(130, 147, 255, 255))
+                        .background(Color(0, 66, 255, 255))
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
@@ -229,7 +229,7 @@ fun app(modifier: Modifier = Modifier){
                 Row(
                     modifier = Modifier
                         .height(40.dp)
-                        .background(Color(47, 189, 255, 255))
+                        .background(Color(0, 128, 255, 255))
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
@@ -245,7 +245,7 @@ fun app(modifier: Modifier = Modifier){
             Row(
                 modifier = Modifier
                     .height(128.dp)
-                    .background(Color(130, 147, 255, 255))
+                    .background(Color(0, 66, 255, 255))
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically

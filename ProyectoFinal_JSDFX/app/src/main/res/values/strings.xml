@@ -5,5 +5,5 @@
     <string name="descripcion">Descripción</string>
     <string name="fecha">03/10/2023</string>
     <string name="fecha2">24/12/2023</string>
-    <string name="ordenado">Ordenado por</string>
+    <string name="ordenado">Ordenado por: </string>
 </resources>
