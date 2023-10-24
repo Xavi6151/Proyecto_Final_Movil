@@ -223,7 +223,7 @@ fun app(modifier: Modifier = Modifier){
                 {
                     Text(
                         text = stringResource(id = R.string.app_name),
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.headlineLarge
                     )
                 }
                 Row(
@@ -236,7 +236,7 @@ fun app(modifier: Modifier = Modifier){
                 ){
                     Text(
                         text = stringResource(id = R.string.ordenado),
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.headlineMedium
                     )
                 }
             }
@@ -267,7 +267,14 @@ fun app(modifier: Modifier = Modifier){
                         )
                     }
                 }
-                Button(onClick = { /*TODO*/ }) {
+                Button(
+                    onClick = { /*TODO*/ },
+                    modifier = modifier
+                        .padding(
+                            start = dimensionResource(R.dimen.padding_small),
+                            end = dimensionResource(R.dimen.padding_small)
+                        )
+                ) {
                     Box{
                         Image(
                             painter = painterResource(id = R.drawable.a_adir),

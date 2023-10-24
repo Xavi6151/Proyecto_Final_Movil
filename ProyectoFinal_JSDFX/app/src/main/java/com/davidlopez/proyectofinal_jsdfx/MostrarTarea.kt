@@ -62,7 +62,7 @@ fun appMostrarTarea(modifier: Modifier = Modifier){
             Column {
                 Row (
                     modifier = Modifier
-                        .height(64.dp)
+                        .height(128.dp)
                         .background(Color(0, 66, 255, 255))
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,

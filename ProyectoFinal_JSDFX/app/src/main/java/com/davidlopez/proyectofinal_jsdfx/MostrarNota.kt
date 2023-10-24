@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -11,14 +12,21 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.davidlopez.proyectofinal_jsdfx.model.Notas
@@ -62,12 +70,42 @@ fun appMostrarNota(modifier: Modifier = Modifier){
             Column {
                 Row (
                     modifier = Modifier
-                        .height(64.dp)
+                        .height(108.dp)
                         .background(Color(0, 66, 255, 255))
                         .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ){
+                    Column(
+                        modifier = Modifier.weight(1f)
+                    ){
+                        Text(
+                            text = stringResource(id = R.string.titulo_nota),
+                            style = MaterialTheme.typography.headlineLarge,
+                            modifier = Modifier
+                                .padding(
+                                    start = dimensionResource(R.dimen.padding_medium)
+                                )
+                        )
+                    }
+                    Column {
+                        Icon(
+                            painter = painterResource(id = R.drawable.trespuntos),
+                            contentDescription = null,
+                            modifier = modifier
+                                .size(
+                                    width = dimensionResource(R.dimen.width2),
+                                    height = dimensionResource(R.dimen.height2)
+                                )
+                                .padding(
+                                    end = dimensionResource(R.dimen.padding_medium)
+                                )
+                        )
+                    }
+                }
+                Row{
+
+                }
+                Row{
 
                 }
             }
