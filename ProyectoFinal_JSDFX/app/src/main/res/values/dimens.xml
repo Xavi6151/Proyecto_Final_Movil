@@ -5,8 +5,9 @@
     <dimen name="padding_medium">16dp</dimen>
     <dimen name="padding_small">8dp</dimen>
     <dimen name="padding_smaller">4dp</dimen>
-    <dimen name="height">68dp</dimen>
-    <dimen name="width">68dp</dimen>
-    <dimen name="height2">46dp</dimen>
-    <dimen name="width2">46dp</dimen>
+    <dimen name="masGrande">84dp</dimen>
+    <dimen name="grande">68dp</dimen>
+    <dimen name="mediano">52dp</dimen>
+    <dimen name="pequeño">36dp</dimen>
+    <dimen name="masPequeño">20dp</dimen>
 </resources>

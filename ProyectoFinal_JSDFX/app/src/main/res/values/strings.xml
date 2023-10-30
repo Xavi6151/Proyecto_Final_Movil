@@ -1,9 +1,13 @@
 <resources>
-    <string name="app_name">ProyectoFinal_JSDFX</string>
+    <string name="app_name">Rather Plus Notes</string>
+    <string name="titulo">Titulo</string>
     <string name="titulo_nota">Nota</string>
     <string name="titulo_tarea">Tarea</string>
     <string name="descripcion">Descripción</string>
+    <string name="escribirTexto">Escribir texto aquí</string>
     <string name="fecha">03/10/2023</string>
     <string name="fecha2">24/12/2023</string>
-    <string name="ordenado">Ordenado por: </string>
+    <string name="ordenado">Ordenar por:</string>
+    <string name="nombre">Nombre</string>
+    <string name="creado">Creado</string>
 </resources>

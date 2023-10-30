@@ -1,8 +1,5 @@
 package com.davidlopez.proyectofinal_jsdfx
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -23,7 +20,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -34,30 +30,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.davidlopez.proyectofinal_jsdfx.data.DataSourceNotasTareas
 import com.davidlopez.proyectofinal_jsdfx.model.Notas
 import com.davidlopez.proyectofinal_jsdfx.model.Tareas
-import com.davidlopez.proyectofinal_jsdfx.ui.theme.ProyectoFinal_JSDFXTheme
-import java.time.format.TextStyle
-
-class BuscarNotaTarea : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            ProyectoFinal_JSDFXTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    appBuscar()
-                }
-            }
-        }
-    }
-}
 
 @Composable
 fun DespliegueBuscar(modifier: Modifier = Modifier, contentPadding: PaddingValues = PaddingValues(0.dp)){
@@ -87,24 +64,41 @@ fun MenuNotasBuscar(notas: Notas, modifier: Modifier = Modifier){
                     contentDescription = null,
                     modifier = modifier
                         .size(
-                            width = dimensionResource(R.dimen.width),
-                            height = dimensionResource(R.dimen.height)
+                            width = dimensionResource(R.dimen.grande),
+                            height = dimensionResource(R.dimen.grande)
                         )
-                        .aspectRatio(1f),
+                        .aspectRatio(1f)
+                        .padding(
+                            start = dimensionResource(R.dimen.padding_small),
+                            top = dimensionResource(R.dimen.padding_small),
+                            bottom = dimensionResource(R.dimen.padding_small),
+                            end = dimensionResource(R.dimen.padding_small)
+                        ),
                     contentScale = ContentScale.Crop
                 )
             }
             Column(
                 modifier = Modifier.weight(1f)
-            ){
-                Text(
-                    text = stringResource(id = notas.nombre),
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(
-                        start = dimensionResource(R.dimen.padding_small),
-                        top = dimensionResource(R.dimen.padding_smaller)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically){
+                    Text(
+                        text = stringResource(id = notas.nombre),
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(
+                            start = dimensionResource(R.dimen.padding_small),
+                            top = dimensionResource(R.dimen.padding_smaller)
+                        ).weight(1f)
                     )
-                )
+                    Text(
+                        text = stringResource(id = notas.fecha),
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier.padding(
+                            start = dimensionResource(R.dimen.padding_small),
+                            top = dimensionResource(R.dimen.padding_small),
+                            end = dimensionResource(R.dimen.padding_small)
+                        )
+                    )
+                }
                 Row(verticalAlignment = Alignment.CenterVertically){
                     Text(
                         text = stringResource(id = notas.descripcion),
@@ -116,17 +110,6 @@ fun MenuNotasBuscar(notas: Notas, modifier: Modifier = Modifier){
                         )
                     )
                 }
-            }
-            Column {
-                Text(
-                    text = stringResource(id = notas.fecha),
-                    style = MaterialTheme.typography.labelMedium,
-                    modifier = Modifier.padding(
-                        start = dimensionResource(R.dimen.padding_medium),
-                        top = dimensionResource(R.dimen.padding_larger),
-                        end = dimensionResource(R.dimen.padding_medium)
-                    )
-                )
             }
         }
     }
@@ -146,24 +129,49 @@ fun MenuTareasBuscar(tareas: Tareas, modifier: Modifier = Modifier){
                     contentDescription = null,
                     modifier = modifier
                         .size(
-                            width = dimensionResource(R.dimen.width),
-                            height = dimensionResource(R.dimen.height)
+                            width = dimensionResource(R.dimen.grande),
+                            height = dimensionResource(R.dimen.grande)
                         )
-                        .aspectRatio(1f),
+                        .aspectRatio(1f)
+                        .padding(
+                            start = dimensionResource(R.dimen.padding_small),
+                            top = dimensionResource(R.dimen.padding_small),
+                            bottom = dimensionResource(R.dimen.padding_small),
+                            end = dimensionResource(R.dimen.padding_small)
+                        ),
                     contentScale = ContentScale.Crop
                 )
             }
             Column(
                 modifier = Modifier.weight(1f)
-            ){
-                Text(
-                    text = stringResource(id = tareas.nombre),
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(
-                        start = dimensionResource(R.dimen.padding_small),
-                        top = dimensionResource(R.dimen.padding_smaller)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically){
+                    Text(
+                        text = stringResource(id = tareas.nombre),
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(
+                            start = dimensionResource(R.dimen.padding_small),
+                            top = dimensionResource(R.dimen.padding_smaller)
+                        ).weight(1f)
                     )
-                )
+                    Text(
+                        text = stringResource(id = tareas.fechaInicio),
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier.padding(
+                            start = dimensionResource(R.dimen.padding_small),
+                            top = dimensionResource(R.dimen.padding_small)
+                        )
+                    )
+                    Text(
+                        text = stringResource(id = tareas.fechaFinal),
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier.padding(
+                            start = dimensionResource(R.dimen.padding_small),
+                            top = dimensionResource(R.dimen.padding_small),
+                            end = dimensionResource(R.dimen.padding_small)
+                        )
+                    )
+                }
                 Row(verticalAlignment = Alignment.CenterVertically){
                     Text(
                         text = stringResource(id = tareas.descripcion),
@@ -176,36 +184,16 @@ fun MenuTareasBuscar(tareas: Tareas, modifier: Modifier = Modifier){
                     )
                 }
             }
-            Column {
-                Text(
-                    text = stringResource(id = tareas.fechaInicio),
-                    style = MaterialTheme.typography.labelMedium,
-                    modifier = Modifier.padding(
-                        start = dimensionResource(R.dimen.padding_medium),
-                        top = dimensionResource(R.dimen.padding_larger),
-                        end = dimensionResource(R.dimen.padding_small)
-                    )
-                )
-            }
-            Column {
-                Text(
-                    text = stringResource(id = tareas.fechaFinal),
-                    style = MaterialTheme.typography.labelMedium,
-                    modifier = Modifier.padding(
-                        start = dimensionResource(R.dimen.padding_smaller),
-                        top = dimensionResource(R.dimen.padding_larger),
-                        end = dimensionResource(R.dimen.padding_medium)
-                    )
-                )
-            }
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = true)
 @Composable
-fun appBuscar(modifier: Modifier = Modifier){
+fun AppBuscar(
+    modifier: Modifier = Modifier,
+    navController: NavController
+){
     //Definir barra superior e inferior
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -221,19 +209,25 @@ fun appBuscar(modifier: Modifier = Modifier){
                 ){
                     TextField(
                         value = "Search",
-                        textStyle = MaterialTheme.typography.headlineSmall,
+                        textStyle = MaterialTheme.typography.bodyLarge,
                         onValueChange = {},
+                        modifier = modifier
+                            .height(52.dp)
+                            .weight(1f)
+                            .padding(
+                                start = dimensionResource(R.dimen.padding_small),
+                                end = dimensionResource(R.dimen.padding_small)
+                            ),
                         leadingIcon = {
                             Icon(
                                 painter = painterResource(id = R.drawable.buscar),
                                 contentDescription = null,
                                 modifier = modifier
-                                    .size(
-                                        width = 48.dp,
-                                        height = 48.dp
-                                    ).padding(
+                                    .padding(
                                         start = dimensionResource(R.dimen.padding_small),
-                                        end = dimensionResource(R.dimen.padding_small)
+                                        top = dimensionResource(R.dimen.padding_small),
+                                        end = dimensionResource(R.dimen.padding_small),
+                                        bottom = dimensionResource(R.dimen.padding_small)
                                     )
                             )
                         }
@@ -251,7 +245,10 @@ fun appBuscar(modifier: Modifier = Modifier){
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ){
-
+                    Text(
+                        text = stringResource(id = R.string.app_name),
+                        style = MaterialTheme.typography.headlineMedium
+                    )
                 }
             }
         }
