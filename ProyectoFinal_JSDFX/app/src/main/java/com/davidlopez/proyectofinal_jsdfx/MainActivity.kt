@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
@@ -43,6 +44,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.davidlopez.proyectofinal_jsdfx.data.DataSourceNotasTareas
 import com.davidlopez.proyectofinal_jsdfx.model.Notas
@@ -50,6 +52,8 @@ import com.davidlopez.proyectofinal_jsdfx.model.Tareas
 import com.davidlopez.proyectofinal_jsdfx.navigation.AppNavigation
 import com.davidlopez.proyectofinal_jsdfx.navigation.AppScreens
 import com.davidlopez.proyectofinal_jsdfx.ui.theme.ProyectoFinal_JSDFXTheme
+import com.davidlopez.proyectofinal_jsdfx.viewModel.AppViewModelProvider
+import com.davidlopez.proyectofinal_jsdfx.viewModel.NoteEntryViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,12 +104,7 @@ fun MenuNotas(notas: Notas, modifier: Modifier = Modifier){
                             height = dimensionResource(R.dimen.grande)
                         )
                         .aspectRatio(1f)
-                        .padding(
-                            start = dimensionResource(R.dimen.padding_small),
-                            top = dimensionResource(R.dimen.padding_small),
-                            bottom = dimensionResource(R.dimen.padding_small),
-                            end = dimensionResource(R.dimen.padding_small)
-                        ),
+                        .padding(dimensionResource(R.dimen.padding_small)),
                     contentScale = ContentScale.Crop
                 )
             }
@@ -116,10 +115,12 @@ fun MenuNotas(notas: Notas, modifier: Modifier = Modifier){
                     Text(
                         text = stringResource(id = notas.nombre),
                         style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(
-                            start = dimensionResource(R.dimen.padding_small),
-                            top = dimensionResource(R.dimen.padding_smaller)
-                        ).weight(1f)
+                        modifier = Modifier
+                            .padding(
+                                start = dimensionResource(R.dimen.padding_small),
+                                top = dimensionResource(R.dimen.padding_smaller)
+                            )
+                            .weight(1f)
                     )
                     Text(
                         text = stringResource(id = notas.fecha),
@@ -165,12 +166,7 @@ fun MenuTareas(tareas: Tareas, modifier: Modifier = Modifier){
                             height = dimensionResource(R.dimen.grande)
                         )
                         .aspectRatio(1f)
-                        .padding(
-                            start = dimensionResource(R.dimen.padding_small),
-                            top = dimensionResource(R.dimen.padding_small),
-                            bottom = dimensionResource(R.dimen.padding_small),
-                            end = dimensionResource(R.dimen.padding_small)
-                        ),
+                        .padding(dimensionResource(R.dimen.padding_small)),
                     contentScale = ContentScale.Crop
                 )
             }
@@ -181,10 +177,12 @@ fun MenuTareas(tareas: Tareas, modifier: Modifier = Modifier){
                     Text(
                         text = stringResource(id = tareas.nombre),
                         style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(
-                            start = dimensionResource(R.dimen.padding_small),
-                            top = dimensionResource(R.dimen.padding_smaller)
-                        ).weight(1f)
+                        modifier = Modifier
+                            .padding(
+                                start = dimensionResource(R.dimen.padding_small),
+                                top = dimensionResource(R.dimen.padding_smaller)
+                            )
+                            .weight(1f)
                     )
                     Text(
                         text = stringResource(id = tareas.fechaInicio),
@@ -224,7 +222,8 @@ fun MenuTareas(tareas: Tareas, modifier: Modifier = Modifier){
 @Composable
 fun App(
     modifier: Modifier = Modifier,
-    navController: NavController
+    navController: NavController,
+    viewModel: NoteEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ){
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -246,32 +245,47 @@ fun App(
                 }
                 Row(
                     modifier = Modifier
-                        .height(46.dp)
+                        .height(dimensionResource(id = R.dimen.grande))
                         .background(Color(0, 128, 255, 255))
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ){
-                    Text(
-                        text = stringResource(id = R.string.ordenado),
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                    Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
                     ExposedDropdownMenuBox(
                         modifier = modifier
-                            .height(36.dp)
-                            .width(150.dp)
-                            .padding(0.dp),
-                        expanded = false,
-                        onExpandedChange = {}
+                            .padding(start = 8.dp, end = 8.dp),
+                        expanded = viewModel.expandidoOrden,
+                        onExpandedChange = {viewModel.actualizarExpandidoOrden(it)}
                     ) {
                         TextField(
-                            value = stringResource(id = R.string.nombre),
+                            value = viewModel.ordenado,
                             onValueChange = {},
-                            modifier = modifier.padding(0.dp).menuAnchor(),
                             readOnly = true,
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = false) }
+                            label = { androidx.compose.material.Text(stringResource(id = R.string.ordenado)) },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = false) },
+                            modifier = Modifier.menuAnchor(),
                         )
+                        ExposedDropdownMenu(
+                            expanded = viewModel.expandidoOrden,
+                            onDismissRequest = { viewModel.expandidoOrden=false })
+                        {
+                            var texto1 = stringResource(id = R.string.nombre)
+                            var texto2 = stringResource(id = R.string.creado)
+                            DropdownMenuItem(
+                                text = { androidx.compose.material.Text(texto1) },
+                                onClick = {
+                                    viewModel.actualizarOrdenado(texto1)
+                                    viewModel.expandidoOrden=false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { androidx.compose.material.Text(texto2) },
+                                onClick = {
+                                    viewModel.actualizarOrdenado(texto2)
+                                    viewModel.expandidoOrden=false
+                                }
+                            )
+                        }
                     }
                 }
             }
