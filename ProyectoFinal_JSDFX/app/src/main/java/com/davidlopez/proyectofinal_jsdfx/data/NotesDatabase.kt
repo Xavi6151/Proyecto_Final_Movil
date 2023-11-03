@@ -14,7 +14,6 @@ abstract class NotesDatabase : RoomDatabase() {
         private var Instance: NotesDatabase? = null
 
         fun getDatabase(context: Context): NotesDatabase {
-            // if the Instance is not null, return it, otherwise create a new database instance.
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(context, NotesDatabase::class.java, "database_notes")
                     .build().also { Instance = it }

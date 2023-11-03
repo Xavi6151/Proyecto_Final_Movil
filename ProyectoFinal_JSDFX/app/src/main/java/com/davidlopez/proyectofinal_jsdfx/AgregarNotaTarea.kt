@@ -34,6 +34,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,10 +49,13 @@ import androidx.navigation.NavController
 import com.davidlopez.proyectofinal_jsdfx.data.DataSourceNotasTareas
 import com.davidlopez.proyectofinal_jsdfx.model.Content
 import com.davidlopez.proyectofinal_jsdfx.navigation.AppScreens
+import com.davidlopez.proyectofinal_jsdfx.sizeScreen.WindowInfo
+import com.davidlopez.proyectofinal_jsdfx.sizeScreen.rememberWindowInfo
 import com.davidlopez.proyectofinal_jsdfx.viewModel.AppViewModelProvider
 import com.davidlopez.proyectofinal_jsdfx.viewModel.NoteDetails
 import com.davidlopez.proyectofinal_jsdfx.viewModel.NoteEntryViewModel
 import com.davidlopez.proyectofinal_jsdfx.viewModel.NoteUiState
+import kotlinx.coroutines.launch
 
 @Composable
 fun DespliegueAgregarNotaTarea(
@@ -110,108 +114,21 @@ fun AppAgregarNotaTarea(
     viewModel: NoteEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 )
 {
+    val tamanioPantalla = rememberWindowInfo()
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            Column {
-                Row (
-                    modifier = Modifier
-                        .height(dimensionResource(id = R.dimen.grande))
-                        .background(Color(0, 66, 255, 255))
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
-                ){
-                    Column(
-                        modifier = modifier.weight(1f)
-                    ) {
-                        TituloNoteEntryBody(noteUiState = viewModel.noteUiState, onNoteValueChange = viewModel::updateUiState)
-                    }
-                    Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_small)))
-                    val botonListo = LocalContext.current.applicationContext
-                    IconButton(
-                        onClick = {
-                            navController.navigate(route = AppScreens.MainScreen.route)
-                            Toast.makeText(botonListo, "Nota agregada", Toast.LENGTH_SHORT).show() },
-                        modifier = Modifier.size(
-                            width = dimensionResource(R.dimen.mediano),
-                            height = dimensionResource(R.dimen.grande)
-                        )
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.a_adir),
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxSize(), // La imagen ocupará todo el espacio del botón
-                            tint = Color.Unspecified // Puedes ajustar el color de la imagen si lo deseas
-                        )
-                    }
-                    Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_small)))
-                }
-                Row (
-                    modifier = Modifier
-                        .height(dimensionResource(id = R.dimen.masGrande))
-                        .background(Color(0, 46, 195, 255))
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
-                ){
-                    ExposedDropdownMenuBox(
-                        modifier = modifier
-                            .padding(start = 8.dp, end = 8.dp),
-                        expanded = viewModel.expandidoTipo,
-                        onExpandedChange = {viewModel.actualizarExpandidoTipo(it)}
-                    ) {
-                        TextField(
-                            value = viewModel.opcion,
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text(stringResource(id = R.string.tipo)) },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = false) },
-                            modifier = Modifier
-                                .menuAnchor()
-                                .fillMaxWidth(),
-                        )
-                        ExposedDropdownMenu(
-                            expanded = viewModel.expandidoTipo,
-                            onDismissRequest = { viewModel.expandidoTipo=false })
-                        {
-                            var texto1 = stringResource(id = R.string.titulo_nota)
-                            var texto2 = stringResource(id = R.string.titulo_tarea)
-                            DropdownMenuItem(
-                                text = { Text(texto1) },
-                                onClick = {
-                                    viewModel.actualizarOpcion(texto1)
-                                    viewModel.expandidoTipo=false
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text(texto2) },
-                                onClick = {
-                                    viewModel.actualizarOpcion(texto2)
-                                    viewModel.expandidoTipo=false
-                                }
-                            )
-                        }
-                    }
-                    Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_smaller)))
-                }
+            if(tamanioPantalla.screenWindthInfo is WindowInfo.WindowType.Compact){
+                parteDeArriba2Compacta(modifier = Modifier, navController = navController, viewModel = viewModel)
+            }else{
+                parteDeArriba2Extendida(modifier = Modifier, navController = navController, viewModel = viewModel)
             }
         },
         bottomBar = {
             Column {
                 Row (
                     modifier = Modifier
-                        .height(58.dp)
-                        .background(Color(0, 46, 195, 255))
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ){
-
-                }
-                Row (
-                    modifier = Modifier
-                        .height(78.dp)
+                        .height(dimensionResource(id = R.dimen.grande))
                         .background(Color(0, 66, 255, 255))
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
@@ -219,7 +136,7 @@ fun AppAgregarNotaTarea(
                 ){
                     val botonCamara = LocalContext.current.applicationContext
                     Button(
-                        onClick = { Toast.makeText(botonCamara, "Camara", Toast.LENGTH_SHORT).show() }
+                        onClick = { Toast.makeText(botonCamara, "Cámara", Toast.LENGTH_SHORT).show() }
                     ) {
                         Box{
                             Image(
@@ -227,15 +144,15 @@ fun AppAgregarNotaTarea(
                                 contentDescription = null,
                                 modifier = modifier
                                     .size(
-                                        width = dimensionResource(R.dimen.mediano),
-                                        height = dimensionResource(R.dimen.mediano)
+                                        width = dimensionResource(R.dimen.pequeño),
+                                        height = dimensionResource(R.dimen.pequeño)
                                     )
                                     .aspectRatio(1f),
                                 contentScale = ContentScale.Crop
                             )
                         }
                     }
-                    Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_smaller)))
+                    Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
                     val botonGaleria = LocalContext.current.applicationContext
                     Button(
                         onClick = { Toast.makeText(botonGaleria, "Galeria", Toast.LENGTH_SHORT).show() }
@@ -246,15 +163,15 @@ fun AppAgregarNotaTarea(
                                 contentDescription = null,
                                 modifier = modifier
                                     .size(
-                                        width = dimensionResource(R.dimen.mediano),
-                                        height = dimensionResource(R.dimen.mediano)
+                                        width = dimensionResource(R.dimen.pequeño),
+                                        height = dimensionResource(R.dimen.pequeño)
                                     )
                                     .aspectRatio(1f),
                                 contentScale = ContentScale.Crop
                             )
                         }
                     }
-                    Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_smaller)))
+                    Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
                     val botonArchivo = LocalContext.current.applicationContext
                     Button(
                         onClick = { Toast.makeText(botonArchivo, "Archivo", Toast.LENGTH_SHORT).show() }
@@ -265,15 +182,15 @@ fun AppAgregarNotaTarea(
                                 contentDescription = null,
                                 modifier = modifier
                                     .size(
-                                        width = dimensionResource(R.dimen.mediano),
-                                        height = dimensionResource(R.dimen.mediano)
+                                        width = dimensionResource(R.dimen.pequeño),
+                                        height = dimensionResource(R.dimen.pequeño)
                                     )
                                     .aspectRatio(1f),
                                 contentScale = ContentScale.Crop
                             )
                         }
                     }
-                    Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_smaller)))
+                    Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
                     val botonMicrofono = LocalContext.current.applicationContext
                     Button(
                         onClick = { Toast.makeText(botonMicrofono, "Micrófono", Toast.LENGTH_SHORT).show() }
@@ -284,8 +201,8 @@ fun AppAgregarNotaTarea(
                                 contentDescription = null,
                                 modifier = modifier
                                     .size(
-                                        width = dimensionResource(R.dimen.mediano),
-                                        height = dimensionResource(R.dimen.mediano)
+                                        width = dimensionResource(R.dimen.pequeño),
+                                        height = dimensionResource(R.dimen.pequeño)
                                     )
                                     .aspectRatio(1f),
                                 contentScale = ContentScale.Crop
@@ -321,7 +238,7 @@ fun TituloNota(
         value = noteDetails.titulo,
         onValueChange = {onValueChange(noteDetails.copy(titulo = it))},
         modifier = Modifier
-            .padding(start = 8.dp, top = 4.dp),
+            .padding(start = 8.dp, top = 4.dp).fillMaxWidth(),
         colors = TextFieldDefaults.textFieldColors(
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent
@@ -329,4 +246,188 @@ fun TituloNota(
         label = { Text(text = stringResource(id = R.string.titulo)) },
         textStyle = MaterialTheme.typography.bodyLarge
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun parteDeArriba2Compacta(
+    modifier: Modifier = Modifier,
+    navController: NavController,
+    viewModel: NoteEntryViewModel
+){
+    val coroutineScope = rememberCoroutineScope()
+    Column {
+        Row (
+            modifier = Modifier
+                .height(dimensionResource(id = R.dimen.grande))
+                .background(Color(0, 66, 255, 255))
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            Column(
+                modifier = modifier.weight(1f)
+            ) {
+                TituloNoteEntryBody(noteUiState = viewModel.noteUiState, onNoteValueChange = viewModel::updateUiState)
+            }
+            Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_small)))
+            val botonListo = LocalContext.current.applicationContext
+            IconButton(
+                onClick = {
+                    coroutineScope.launch {
+                        viewModel.saveNote()
+                        navController.navigate(route = AppScreens.MainScreen.route)
+                        Toast.makeText(botonListo, "Nota agregada", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                modifier = Modifier.size(
+                    width = dimensionResource(R.dimen.mediano),
+                    height = dimensionResource(R.dimen.grande)
+                )
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.a_adir),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(), // La imagen ocupará todo el espacio del botón
+                    tint = Color.Unspecified // Puedes ajustar el color de la imagen si lo deseas
+                )
+            }
+            Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_small)))
+        }
+        Row (
+            modifier = Modifier
+                .height(dimensionResource(id = R.dimen.grande))
+                .background(Color(0, 46, 195, 255))
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            ExposedDropdownMenuBox(
+                modifier = modifier
+                    .padding(start = 8.dp, end = 8.dp),
+                expanded = viewModel.expandidoTipo,
+                onExpandedChange = {viewModel.actualizarExpandidoTipo(it)}
+            ) {
+                TextField(
+                    value = viewModel.opcion,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text(stringResource(id = R.string.tipo)) },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = false) },
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth(),
+                )
+                ExposedDropdownMenu(
+                    expanded = viewModel.expandidoTipo,
+                    onDismissRequest = { viewModel.expandidoTipo=false })
+                {
+                    var texto1 = stringResource(id = R.string.titulo_nota)
+                    var texto2 = stringResource(id = R.string.titulo_tarea)
+                    DropdownMenuItem(
+                        text = { Text(texto1) },
+                        onClick = {
+                            viewModel.actualizarOpcion(texto1)
+                            viewModel.expandidoTipo=false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(texto2) },
+                        onClick = {
+                            viewModel.actualizarOpcion(texto2)
+                            viewModel.expandidoTipo=false
+                        }
+                    )
+                }
+            }
+            Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_smaller)))
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun parteDeArriba2Extendida(
+    modifier: Modifier = Modifier,
+    navController: NavController,
+    viewModel: NoteEntryViewModel
+){
+    val coroutineScope = rememberCoroutineScope()
+    Column {
+        Row (
+            modifier = Modifier
+                .height(dimensionResource(id = R.dimen.grande))
+                .background(Color(0, 66, 255, 255))
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            Column(
+                modifier = modifier.weight(0.5f)
+            ) {
+                TituloNoteEntryBody(noteUiState = viewModel.noteUiState, onNoteValueChange = viewModel::updateUiState)
+            }
+            Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_smaller)))
+            ExposedDropdownMenuBox(
+                modifier = modifier
+                    .padding(start = 8.dp, end = 8.dp),
+                expanded = viewModel.expandidoTipo,
+                onExpandedChange = {viewModel.actualizarExpandidoTipo(it)}
+            ) {
+                TextField(
+                    value = viewModel.opcion,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text(stringResource(id = R.string.tipo)) },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = false) },
+                    modifier = Modifier
+                        .menuAnchor(),
+                )
+                ExposedDropdownMenu(
+                    expanded = viewModel.expandidoTipo,
+                    onDismissRequest = { viewModel.expandidoTipo=false })
+                {
+                    var texto1 = stringResource(id = R.string.titulo_nota)
+                    var texto2 = stringResource(id = R.string.titulo_tarea)
+                    DropdownMenuItem(
+                        text = { Text(texto1) },
+                        onClick = {
+                            viewModel.actualizarOpcion(texto1)
+                            viewModel.expandidoTipo=false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(texto2) },
+                        onClick = {
+                            viewModel.actualizarOpcion(texto2)
+                            viewModel.expandidoTipo=false
+                        }
+                    )
+                }
+            }
+            //Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_smaller)))
+            val botonListo = LocalContext.current.applicationContext
+            IconButton(
+                onClick = {
+                    coroutineScope.launch {
+                        viewModel.saveNote()
+                        navController.navigate(route = AppScreens.MainScreen.route)
+                        Toast.makeText(botonListo, "Nota agregada", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                modifier = Modifier.size(
+                    width = dimensionResource(R.dimen.mediano),
+                    height = dimensionResource(R.dimen.grande)
+                )
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.a_adir),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(), // La imagen ocupará todo el espacio del botón
+                    tint = Color.Unspecified // Puedes ajustar el color de la imagen si lo deseas
+                )
+            }
+            Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_small)))
+        }
+    }
 }

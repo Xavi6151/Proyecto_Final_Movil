@@ -14,6 +14,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,155 +37,49 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.davidlopez.proyectofinal_jsdfx.data.DataSourceNotasTareas
 import com.davidlopez.proyectofinal_jsdfx.model.Notas
-import com.davidlopez.proyectofinal_jsdfx.model.Tareas
+import com.davidlopez.proyectofinal_jsdfx.sizeScreen.WindowInfo
+import com.davidlopez.proyectofinal_jsdfx.sizeScreen.rememberWindowInfo
 
 @Composable
 fun DespliegueBuscar(modifier: Modifier = Modifier, contentPadding: PaddingValues = PaddingValues(0.dp)){
-    LazyColumn(
-        contentPadding = contentPadding
-    ){
-        items(DataSourceNotasTareas.listaNotas){ notas ->
-            MenuNotasBuscar(notas)
-        }
-        items(DataSourceNotasTareas.listaTareas){ tareas ->
-            MenuTareasBuscar(tareas)
-        }
-    }
-}
-
-@Composable
-fun MenuNotasBuscar(notas: Notas, modifier: Modifier = Modifier){
-    Card(
-        modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_smaller))
-    ){
-        Row(
-            modifier = Modifier.fillMaxWidth()
+    val tamanioPantalla = rememberWindowInfo()
+    if(tamanioPantalla.screenWindthInfo is WindowInfo.WindowType.Compact){
+        LazyColumn(
+            contentPadding = contentPadding
         ){
-            Box{
-                Image(
-                    painter = painterResource(id = R.drawable.nota),
-                    contentDescription = null,
-                    modifier = modifier
-                        .size(
-                            width = dimensionResource(R.dimen.grande),
-                            height = dimensionResource(R.dimen.grande)
-                        )
-                        .aspectRatio(1f)
-                        .padding(
-                            start = dimensionResource(R.dimen.padding_small),
-                            top = dimensionResource(R.dimen.padding_small),
-                            bottom = dimensionResource(R.dimen.padding_small),
-                            end = dimensionResource(R.dimen.padding_small)
-                        ),
-                    contentScale = ContentScale.Crop
-                )
+            items(DataSourceNotasTareas.listaNotas){ notas ->
+                MenuNotas(notas)
             }
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically){
-                    Text(
-                        text = stringResource(id = notas.nombre),
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(
-                            start = dimensionResource(R.dimen.padding_small),
-                            top = dimensionResource(R.dimen.padding_smaller)
-                        ).weight(1f)
-                    )
-                    Text(
-                        text = stringResource(id = notas.fecha),
-                        style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.padding(
-                            start = dimensionResource(R.dimen.padding_small),
-                            top = dimensionResource(R.dimen.padding_small),
-                            end = dimensionResource(R.dimen.padding_small)
-                        )
-                    )
-                }
-                Row(verticalAlignment = Alignment.CenterVertically){
-                    Text(
-                        text = stringResource(id = notas.descripcion),
-                        style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.padding(
-                            start = dimensionResource(R.dimen.padding_small),
-                            top = dimensionResource(R.dimen.padding_small),
-                            end = dimensionResource(R.dimen.padding_larger)
-                        )
-                    )
-                }
+            items(DataSourceNotasTareas.listaTareas){ tareas ->
+                MenuNotas(tareas)
             }
         }
-    }
-}
-
-@Composable
-fun MenuTareasBuscar(tareas: Tareas, modifier: Modifier = Modifier){
-    Card(
-        modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_smaller))
-    ){
-        Row(
-            modifier = Modifier.fillMaxWidth()
+    }else if(tamanioPantalla.screenWindthInfo is WindowInfo.WindowType.Medium){
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            contentPadding=contentPadding,
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
         ){
-            Box{
-                Image(
-                    painter = painterResource(id = R.drawable.tarea),
-                    contentDescription = null,
-                    modifier = modifier
-                        .size(
-                            width = dimensionResource(R.dimen.grande),
-                            height = dimensionResource(R.dimen.grande)
-                        )
-                        .aspectRatio(1f)
-                        .padding(
-                            start = dimensionResource(R.dimen.padding_small),
-                            top = dimensionResource(R.dimen.padding_small),
-                            bottom = dimensionResource(R.dimen.padding_small),
-                            end = dimensionResource(R.dimen.padding_small)
-                        ),
-                    contentScale = ContentScale.Crop
-                )
+            itemsIndexed(DataSourceNotasTareas.listaNotas){ id, notas ->
+                MenuNotas(notas)
             }
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically){
-                    Text(
-                        text = stringResource(id = tareas.nombre),
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(
-                            start = dimensionResource(R.dimen.padding_small),
-                            top = dimensionResource(R.dimen.padding_smaller)
-                        ).weight(1f)
-                    )
-                    Text(
-                        text = stringResource(id = tareas.fechaInicio),
-                        style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.padding(
-                            start = dimensionResource(R.dimen.padding_small),
-                            top = dimensionResource(R.dimen.padding_small)
-                        )
-                    )
-                    Text(
-                        text = stringResource(id = tareas.fechaFinal),
-                        style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.padding(
-                            start = dimensionResource(R.dimen.padding_small),
-                            top = dimensionResource(R.dimen.padding_small),
-                            end = dimensionResource(R.dimen.padding_small)
-                        )
-                    )
-                }
-                Row(verticalAlignment = Alignment.CenterVertically){
-                    Text(
-                        text = stringResource(id = tareas.descripcion),
-                        style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.padding(
-                            start = dimensionResource(R.dimen.padding_small),
-                            top = dimensionResource(R.dimen.padding_small),
-                            end = dimensionResource(R.dimen.padding_larger)
-                        )
-                    )
-                }
+            itemsIndexed(DataSourceNotasTareas.listaTareas){ id, tareas ->
+                MenuNotas(tareas)
+            }
+        }
+    }else{
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3),
+            contentPadding=contentPadding,
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
+        ){
+            itemsIndexed(DataSourceNotasTareas.listaNotas){ id, notas ->
+                MenuNotas(notas)
+            }
+            itemsIndexed(DataSourceNotasTareas.listaTareas){ id, tareas ->
+                MenuNotas(tareas)
             }
         }
     }
@@ -201,7 +98,7 @@ fun AppBuscar(
             Column {
                 Row (
                     modifier = Modifier
-                        .height(86.dp)
+                        .height(dimensionResource(id = R.dimen.grande))
                         .background(Color(0, 66, 255, 255))
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,

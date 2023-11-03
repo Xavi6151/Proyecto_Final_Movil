@@ -6,6 +6,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.davidlopez.proyectofinal_jsdfx.data.NotaEntity
 import com.davidlopez.proyectofinal_jsdfx.data.NotesRepository
+import java.util.Calendar
+import java.util.TimeZone
 
 class NoteEntryViewModel(private val notesRepository: NotesRepository) : ViewModel() {
 
@@ -70,7 +72,8 @@ data class NoteDetails(
     val id: Int = 0,
     val titulo: String = "",
     val contenido: String = "",
-    val fecha: String = "",
+    val fecha: String = ""+ Calendar.getInstance(TimeZone.getTimeZone("America/Mexico_City")).get(Calendar.DAY_OF_MONTH)+
+            "/"+(Calendar.getInstance().get(Calendar.MONTH)+1)+"/"+Calendar.getInstance().get(Calendar.YEAR)
 )
 
 fun NoteDetails.toNote(): NotaEntity = NotaEntity(
