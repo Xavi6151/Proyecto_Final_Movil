@@ -70,7 +70,7 @@ data class  NoteUiState(
 
 data class NoteDetails(
     val id: Int = 0,
-    val titulo: String = "",
+    val titulo: String = "k",
     val contenido: String = "",
     val fecha: String = ""+ Calendar.getInstance(TimeZone.getTimeZone("America/Mexico_City")).get(Calendar.DAY_OF_MONTH)+
             "/"+(Calendar.getInstance().get(Calendar.MONTH)+1)+"/"+Calendar.getInstance().get(Calendar.YEAR)
