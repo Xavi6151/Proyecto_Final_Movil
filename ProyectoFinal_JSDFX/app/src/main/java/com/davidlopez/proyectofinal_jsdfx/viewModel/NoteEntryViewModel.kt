@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.davidlopez.proyectofinal_jsdfx.R
 import com.davidlopez.proyectofinal_jsdfx.data.NotaEntity
 import com.davidlopez.proyectofinal_jsdfx.data.NotesRepository
 import java.util.Calendar
@@ -33,9 +34,9 @@ class NoteEntryViewModel(private val notesRepository: NotesRepository) : ViewMod
 
     var textoCuerpo by mutableStateOf("")
     var textoTitulo by mutableStateOf("")
-    var opcion by mutableStateOf("Nota")
+    var opcion by mutableStateOf("")
     var expandidoTipo by mutableStateOf(false)
-    var ordenado by mutableStateOf("Nombre")
+    var ordenado by mutableStateOf("")
     var expandidoOrden by mutableStateOf(false)
 
     fun actualizarTextoCuerpo(text: String){

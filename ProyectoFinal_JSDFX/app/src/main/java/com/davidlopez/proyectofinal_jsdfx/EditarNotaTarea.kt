@@ -47,38 +47,41 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.davidlopez.proyectofinal_jsdfx.data.DataSourceNotasTareas
+import com.davidlopez.proyectofinal_jsdfx.data.NotaEntity
 import com.davidlopez.proyectofinal_jsdfx.model.Content
 import com.davidlopez.proyectofinal_jsdfx.navigation.AppScreens
 import com.davidlopez.proyectofinal_jsdfx.sizeScreen.WindowInfo
 import com.davidlopez.proyectofinal_jsdfx.sizeScreen.rememberWindowInfo
 import com.davidlopez.proyectofinal_jsdfx.viewModel.AppViewModelProvider
 import com.davidlopez.proyectofinal_jsdfx.viewModel.NoteDetails
+import com.davidlopez.proyectofinal_jsdfx.viewModel.NoteEditViewModel
 import com.davidlopez.proyectofinal_jsdfx.viewModel.NoteEntryViewModel
 import com.davidlopez.proyectofinal_jsdfx.viewModel.NoteUiState
+import com.davidlopez.proyectofinal_jsdfx.viewModel.toNoteDetails
 import kotlinx.coroutines.launch
 
 @Composable
-fun DespliegueAgregarNotaTarea(
+fun DespliegueEditarNotaTarea(
     contentPadding: PaddingValues,
-    viewModel: NoteEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: NoteEditViewModel
 ){
     LazyColumn(
         contentPadding=contentPadding,
         modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small))){
         items(DataSourceNotasTareas.texto){
-            NoteEntryBody(
+            NoteEditBody(
                 noteUiState = viewModel.noteUiState,
-                onNoteValueChange = viewModel::updateUiState)
+                onNoteValueChange = viewModel::updateUiStateEdit)
         }
     }
 }
 
 @Composable
-fun NoteEntryBody(
+fun NoteEditBody(
     noteUiState: NoteUiState,
     onNoteValueChange: (NoteDetails) -> Unit
 ){
-    AddTextCard(
+    EditTextCard(
         noteDetails = noteUiState.noteDetails,
         onValueChange = onNoteValueChange
     )
@@ -87,7 +90,7 @@ fun NoteEntryBody(
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddTextCard(
+fun EditTextCard(
     noteDetails: NoteDetails,
     onValueChange: (NoteDetails) -> Unit = {}
 ){
@@ -108,20 +111,22 @@ fun AddTextCard(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppAgregarNotaTarea(
+fun AppEditarNotaTarea(
     modifier: Modifier = Modifier,
     navController: NavController,
-    viewModel: NoteEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    notaEntity: NotaEntity,
+    viewModel: NoteEditViewModel = viewModel(factory = AppViewModelProvider.Factory)
 )
 {
+    viewModel.updateUiStateEdit(notaEntity.toNoteDetails())
     val tamanioPantalla = rememberWindowInfo()
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             if(tamanioPantalla.screenWindthInfo is WindowInfo.WindowType.Compact){
-                parteDeArriba2Compacta(modifier = Modifier, navController = navController, viewModel = viewModel)
+                parteDeArriba2CompactaEditar(modifier = Modifier, navController = navController, viewModel = viewModel)
             }else{
-                parteDeArriba2Extendida(modifier = Modifier, navController = navController, viewModel = viewModel)
+                parteDeArriba2ExtendidaEditar(modifier = Modifier, navController = navController, viewModel = viewModel)
             }
         },
         bottomBar = {
@@ -155,7 +160,7 @@ fun AppAgregarNotaTarea(
                     Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
                     val botonGaleria = LocalContext.current.applicationContext
                     Button(
-                        onClick = { Toast.makeText(botonGaleria, R.string.galeria, Toast.LENGTH_SHORT).show() }
+                        onClick = { Toast.makeText(botonGaleria, R.string.archivos, Toast.LENGTH_SHORT).show() }
                     ) {
                         Box{
                             Image(
@@ -213,47 +218,16 @@ fun AppAgregarNotaTarea(
             }
         }
     ){
-        DespliegueAgregarNotaTarea(contentPadding = it)
+        DespliegueEditarNotaTarea(contentPadding = it, viewModel)
     }
 }
 
-@Composable
-fun TituloNoteEntryBody(
-    noteUiState: NoteUiState,
-    onNoteValueChange: (NoteDetails) -> Unit
-){
-    TituloNota(
-        noteDetails = noteUiState.noteDetails,
-        onValueChange = onNoteValueChange
-    )
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TituloNota(
-    noteDetails: NoteDetails,
-    onValueChange: (NoteDetails) -> Unit = {}
-){
-    TextField(
-        value = noteDetails.titulo,
-        onValueChange = {onValueChange(noteDetails.copy(titulo = it))},
-        modifier = Modifier
-            .padding(start = 8.dp, top = 4.dp).fillMaxWidth(),
-        colors = TextFieldDefaults.textFieldColors(
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
-        ),
-        label = { Text(text = stringResource(id = R.string.titulo)) },
-        textStyle = MaterialTheme.typography.bodyLarge
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun parteDeArriba2Compacta(
+fun parteDeArriba2CompactaEditar(
     modifier: Modifier = Modifier,
     navController: NavController,
-    viewModel: NoteEntryViewModel
+    viewModel: NoteEditViewModel
 ){
     val coroutineScope = rememberCoroutineScope()
     Column {
@@ -268,16 +242,16 @@ fun parteDeArriba2Compacta(
             Column(
                 modifier = modifier.weight(1f)
             ) {
-                TituloNoteEntryBody(noteUiState = viewModel.noteUiState, onNoteValueChange = viewModel::updateUiState)
+                TituloNoteEntryBody(noteUiState = viewModel.noteUiState, onNoteValueChange = viewModel::updateUiStateEdit)
             }
             Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_small)))
             val botonListo = LocalContext.current.applicationContext
             IconButton(
                 onClick = {
                     coroutineScope.launch {
-                        viewModel.saveNote()
+                        viewModel.updateNote()
                         navController.navigate(route = AppScreens.MainScreen.route)
-                        Toast.makeText(botonListo, R.string.agregarAccion, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(botonListo, R.string.editarAccion, Toast.LENGTH_SHORT).show()
                     }
                 },
                 modifier = Modifier.size(
@@ -347,10 +321,10 @@ fun parteDeArriba2Compacta(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun parteDeArriba2Extendida(
+fun parteDeArriba2ExtendidaEditar(
     modifier: Modifier = Modifier,
     navController: NavController,
-    viewModel: NoteEntryViewModel
+    viewModel: NoteEditViewModel
 ){
     val coroutineScope = rememberCoroutineScope()
     Column {
@@ -365,7 +339,7 @@ fun parteDeArriba2Extendida(
             Column(
                 modifier = modifier.weight(0.5f)
             ) {
-                TituloNoteEntryBody(noteUiState = viewModel.noteUiState, onNoteValueChange = viewModel::updateUiState)
+                TituloNoteEntryBody(noteUiState = viewModel.noteUiState, onNoteValueChange = viewModel::updateUiStateEdit)
             }
             Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_smaller)))
             ExposedDropdownMenuBox(
@@ -410,9 +384,9 @@ fun parteDeArriba2Extendida(
             IconButton(
                 onClick = {
                     coroutineScope.launch {
-                        viewModel.saveNote()
+                        viewModel.updateNote()
                         navController.navigate(route = AppScreens.MainScreen.route)
-                        Toast.makeText(botonListo, R.string.agregarAccion, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(botonListo, R.string.editarAccion, Toast.LENGTH_SHORT).show()
                     }
                 },
                 modifier = Modifier.size(

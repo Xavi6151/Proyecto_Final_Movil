@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Rather Plus Notes</string>
+    <string name="titulo">Title</string>
+    <string name="tipo">Type</string>
+    <string name="titulo_nota">Note</string>
+    <string name="titulo_tarea">Homework</string>
+    <string name="descripcion">Description</string>
+    <string name="escribirTexto">Write text here</string>
+    <string name="ordenado">Order by:</string>
+    <string name="nombre">Name</string>
+    <string name="creado">Create date</string>
+    <string name="sinNota">There\'s no notes to show</string>
+    <string name="confirmar">Confirm</string>
+    <string name="cancelar">Cancel</string>
+    <string name="eliminarNota">Delete</string>
+    <string name="preguntaEliminar">Are you sure you want to delete?</string>
+    <string name="agregar">Add</string>
+    <string name="tema">Theme</string>
+    <string name="camara">Camera</string>
+    <string name="galeria">Gallery</string>
+    <string name="archivos">Files</string>
+    <string name="audio">Audio</string>
+    <string name="agregarAccion">Added note</string>
+    <string name="editarAccion">Updated note</string>
+</resources>

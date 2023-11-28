@@ -12,32 +12,19 @@ object AppViewModelProvider {
     val Factory = viewModelFactory {
         // Initializer for ItemEditViewModel
         initializer {
-            NoteEditViewModel(
-                this.createSavedStateHandle()
-            )
+            NoteEditViewModel(inventoryApplication().container.notesRepository)
         }
         // Initializer for ItemEntryViewModel
         initializer {
             NoteEntryViewModel(inventoryApplication().container.notesRepository)
         }
 
-        // Initializer for ItemDetailsViewModel
-        initializer {
-            NoteDetailsViewModel(
-                this.createSavedStateHandle()
-            )
-        }
-
         // Initializer for HomeViewModel
         initializer {
-            HomeViewModel()
+            HomeViewModel(inventoryApplication().container.notesRepository)
         }
     }
 }
 
-/**
- * Extension function to queries for [Application] object and returns an instance of
- * [InventoryApplication].
- */
 fun CreationExtras.inventoryApplication(): InventoryApplication =
     (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as InventoryApplication)

@@ -6,8 +6,21 @@
     <string name="titulo_tarea">Tarea</string>
     <string name="descripcion">Descripción</string>
     <string name="escribirTexto">Escribir texto aquí</string>
-    <string name="fecha">03/10/2023</string>
+    <string name="fecha" translatable="false">03/10/2023</string>
     <string name="ordenado">Ordenar por:</string>
     <string name="nombre">Nombre</string>
     <string name="creado">Fecha de creación</string>
+    <string name="sinNota">No existe una nota a mostrar =[</string>
+    <string name="confirmar">Confirmar</string>
+    <string name="agregar">Agregar</string>
+    <string name="agregarAccion">Nota agregada</string>
+    <string name="editarAccion">Nota actualizada</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="eliminarNota">Eliminar</string>
+    <string name="preguntaEliminar">¿Estás seguro de querer eliminar?</string>
+    <string name="tema">Tema</string>
+    <string name="camara">Cámara</string>
+    <string name="galeria">Galería</string>
+    <string name="archivos">Archivos</string>
+    <string name="audio">Audio</string>
 </resources>

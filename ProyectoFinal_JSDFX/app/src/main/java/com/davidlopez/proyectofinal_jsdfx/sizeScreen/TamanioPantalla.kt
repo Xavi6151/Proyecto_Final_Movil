@@ -25,15 +25,15 @@ fun rememberWindowInfo(): WindowInfo{
 }
 //Clase para detectar los tipos de ventana
 data class WindowInfo(
-    val screenWindthInfo: WindowType,  // Tipo de ventana en función del ancho de pantalla
-    val screenHeighInfo: WindowType,  // Tipo de ventana en función del alto de pantalla
-    val screenWidth: Dp,  //Ancho de pantalla en unidades densidad independientes (Dp)
-    val screenHeight: Dp  // Alto de pantalla en unidades densidad independientes (Dp)
+    val screenWindthInfo: WindowType,
+    val screenHeighInfo: WindowType,
+    val screenWidth: Dp,
+    val screenHeight: Dp
 
 ){
-    sealed class WindowType{ //clase sellada
-        object Compact: WindowType() //Ventanas pequeñas (telefonos)
-        object Medium: WindowType() //Ventana para tabletas pequeñas
+    sealed class WindowType{
+        object Compact: WindowType() //Ventanas pequeñas (telefonos en modo vertical)
+        object Medium: WindowType() //Ventana para tabletas pequeñas o telefono en modo horizontal
         object  Expanded: WindowType()  //Ventana para tables grandes
     }
 }
