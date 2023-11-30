@@ -19,9 +19,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Text
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,6 +35,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -44,6 +49,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.davidlopez.proyectofinal_jsdfx.data.DataSourceNotasTareas
@@ -52,6 +58,7 @@ import com.davidlopez.proyectofinal_jsdfx.navigation.AppScreens
 import com.davidlopez.proyectofinal_jsdfx.sizeScreen.WindowInfo
 import com.davidlopez.proyectofinal_jsdfx.sizeScreen.rememberWindowInfo
 import com.davidlopez.proyectofinal_jsdfx.viewModel.AppViewModelProvider
+import com.davidlopez.proyectofinal_jsdfx.viewModel.HomeViewModel
 import com.davidlopez.proyectofinal_jsdfx.viewModel.NoteDetails
 import com.davidlopez.proyectofinal_jsdfx.viewModel.NoteEntryViewModel
 import com.davidlopez.proyectofinal_jsdfx.viewModel.NoteUiState
@@ -429,5 +436,32 @@ fun parteDeArriba2Extendida(
             }
             Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_small)))
         }
+    }
+}
+
+@Composable
+fun VentanaDialogoAudioEditar(
+    show:Boolean,
+    onDismiss:()->Unit,
+    onConfirm:()->Unit,
+    titulo:String,
+    text:String
+){
+    if(show) {
+        AlertDialog(
+            onDismissRequest = { onDismiss() },
+            confirmButton = {
+                TextButton(onClick = { onConfirm() }) {
+                    Text(text = stringResource(id = R.string.confirmar))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { onDismiss() }) {
+                    Text(text = stringResource(id = R.string.cancelar))
+                }
+            },
+            title = { Text(titulo) },
+            text = { Text(text) }
+        )
     }
 }
