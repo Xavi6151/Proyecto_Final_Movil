@@ -16,7 +16,7 @@ fun AppNavigation(){
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = AppScreens.MainScreen.route
+        startDestination = AppScreens.MainScreen.route,
     ){
         var nota = NotaEntity(0,"","","")
         composable(route =AppScreens.MainScreen.route){

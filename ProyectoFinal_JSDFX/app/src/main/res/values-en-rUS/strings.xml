@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Rather Plus Notes</string>
+    <string name="bienvenido">Welcome!</string>
     <string name="titulo">Title</string>
     <string name="tipo">Type</string>
     <string name="titulo_nota">Note</string>
@@ -17,10 +18,21 @@
     <string name="preguntaEliminar">Are you sure you want to delete?</string>
     <string name="agregar">Add</string>
     <string name="tema">Theme</string>
-    <string name="camara">Camera</string>
-    <string name="galeria">Gallery</string>
+    <string name="foto">Photo</string>
+    <string name="video">Video</string>
     <string name="archivos">Files</string>
     <string name="audio">Audio</string>
     <string name="agregarAccion">Added note</string>
     <string name="editarAccion">Updated note</string>
+    <string name="audioTexto">Press Record to start the audio</string>
+    <string name="grabar">Record</string>
+    <string name="parar">Stop</string>
+    <string name="reproducir">Play</string>
+    <string name="detener">Stop</string>
+    <string name="definirHora">Hour</string>
+    <string name="recordatorio">"Reminder set to: "</string>
+    <string name="cantidadImagenes">Images:</string>
+    <string name="mensajeEliminar">Delete last image</string>
+    <string name="cantidadVideos">"Videos: "</string>
+    <string name="mensajeEliminarVideo">Delete last video</string>
 </resources>

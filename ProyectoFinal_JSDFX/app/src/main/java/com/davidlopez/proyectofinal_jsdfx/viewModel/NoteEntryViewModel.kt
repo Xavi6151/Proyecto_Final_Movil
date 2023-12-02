@@ -1,10 +1,13 @@
 package com.davidlopez.proyectofinal_jsdfx.viewModel
 
+import android.net.Uri
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.davidlopez.proyectofinal_jsdfx.R
+import com.davidlopez.proyectofinal_jsdfx.data.ImageEntity
 import com.davidlopez.proyectofinal_jsdfx.data.NotaEntity
 import com.davidlopez.proyectofinal_jsdfx.data.NotesRepository
 import java.util.Calendar
@@ -22,7 +25,16 @@ class NoteEntryViewModel(private val notesRepository: NotesRepository) : ViewMod
 
     suspend fun saveNote() {
         if (validateInput()) {
-            notesRepository.insertNote(noteUiState.noteDetails.toNote())
+            var id=notesRepository.insertNote(noteUiState.noteDetails.toNote())
+            saveImages(id)
+            //saveVideos(id)
+        }
+    }
+
+    suspend fun saveImages(id:Long){
+        urislist.forEach{uri->
+            var imageNota= ImageEntity(0, id.toInt(),""+uri)
+            notesRepository.insertImage(imageNota)
         }
     }
 
@@ -32,36 +44,99 @@ class NoteEntryViewModel(private val notesRepository: NotesRepository) : ViewMod
         }
     }
 
-    var textoCuerpo by mutableStateOf("")
-    var textoTitulo by mutableStateOf("")
     var opcion by mutableStateOf("")
     var expandidoTipo by mutableStateOf(false)
-    var ordenado by mutableStateOf("")
-    var expandidoOrden by mutableStateOf(false)
+    var notificacion by mutableStateOf(false)
+    var hora by mutableStateOf("")
+    var hour by mutableStateOf(0)
+    var minute by mutableStateOf(0)
+    var uriMostrar by mutableStateOf(Uri.EMPTY)
+    var showReloj by mutableStateOf(false)
+    var showOption by mutableStateOf(false)
+    var calcular by mutableStateOf(false)
+    var recordatorio by mutableStateOf(false)
 
-    fun actualizarTextoCuerpo(text: String){
-        textoCuerpo=text
+    fun updateShowReloj(boolean: Boolean){ showReloj= boolean }
+
+    fun updateRecordatorio(boolean: Boolean){ recordatorio= boolean }
+
+    fun updateShowOption(boolean: Boolean){ showOption= boolean }
+
+    fun updateCalcular(boolean: Boolean){ calcular= boolean }
+
+    fun actualizarOpcion(text: String){ opcion=text }
+
+    fun actualizarExpandidoTipo(boolean: Boolean){ expandidoTipo=boolean }
+
+    fun updateNotificacion(boolean: Boolean){ notificacion=boolean }
+
+    fun updateHora(string: String){ hora=string }
+
+    fun updateHour(int: Int){ hour=int }
+
+    fun updateMinuto(int: Int){ minute=int }
+
+    fun updateUriMostrar(uri: Uri?){ uriMostrar=uri }
+
+    //imagen
+    var hasImage by mutableStateOf(false)
+    var mostrarImagen by mutableStateOf(false)
+    var cantidadImagenes by mutableStateOf(0)
+    var imageUri by mutableStateOf<Uri?>(null)
+    var urislist= mutableStateListOf<Uri?>()
+
+    fun updatehasImage(boolean: Boolean){ hasImage= boolean }
+
+    fun updateUrisList(uri: Uri?){
+        urislist.add(uri)
+        cantidadImagenes=urislist.size
     }
 
-    fun actualizarTextoTitulo(text: String){
-        textoTitulo=text
+    fun deleteLastUri(){
+        urislist.removeLast()
+        cantidadImagenes=urislist.size
     }
 
-    fun actualizarOpcion(text: String){
-        opcion=text
+    fun updateMostrarImagen(boolean: Boolean){ mostrarImagen= boolean }
+
+    //videos
+    var hasVideo by mutableStateOf(false)
+    var mostrarVideo by mutableStateOf(false)
+    var cantidadVideos by mutableStateOf(0)
+    var videoUri by mutableStateOf<Uri?>(null)
+    var urisVideolist= mutableStateListOf<Uri?>()
+
+    fun updatehasVideo(boolean: Boolean){ hasVideo= boolean }
+
+    fun updateUrisVideoList(uri: Uri?){
+        urisVideolist.add(uri)
+        cantidadVideos=urisVideolist.size
     }
 
-    fun actualizarExpandidoTipo(boolean: Boolean){
-        expandidoTipo=boolean
+    fun deleteLastVideoUri(){
+        urisVideolist.removeLast()
+        cantidadVideos=urisVideolist.size
     }
 
-    fun actualizarOrdenado(text: String){
-        ordenado=text
+    fun updateMostrarVideo(boolean: Boolean){ mostrarVideo= boolean }
+    //audios
+    val listaAudios = mutableStateListOf<Uri>()
+    var cantidadAudios by mutableStateOf(0)
+    var urisAudioslist= mutableStateListOf<Uri?>()
+    var showAudio by mutableStateOf(false)
+
+    fun updateShowAudio(boolean: Boolean){ showAudio= boolean }
+
+    fun updateUrisAudiosList(uri: Uri){
+        urisAudioslist.add(uri)
+        cantidadAudios=urisAudioslist.size
     }
 
-    fun actualizarExpandidoOrden(boolean: Boolean){
-        expandidoOrden=boolean
+    fun deleteLastUriAudios(){
+        urisAudioslist.removeLast()
+        cantidadAudios=urisAudioslist.size
     }
+
 }
 
 data class  NoteUiState(

@@ -32,7 +32,6 @@ class HomeViewModel(
         notesRepository.deleteNote(note)
     }
     var show by mutableStateOf(false)
-
     fun updateShow(boolean: Boolean){
         show= boolean
     }

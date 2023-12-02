@@ -1,9 +1,11 @@
 package com.davidlopez.proyectofinal_jsdfx
 
+import android.Manifest
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,6 +29,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -46,7 +49,11 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
@@ -58,6 +65,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.room.Update
@@ -67,17 +75,24 @@ import com.davidlopez.proyectofinal_jsdfx.data.NotaEntity
 import com.davidlopez.proyectofinal_jsdfx.model.Notas
 import com.davidlopez.proyectofinal_jsdfx.navigation.AppNavigation
 import com.davidlopez.proyectofinal_jsdfx.navigation.AppScreens
+import com.davidlopez.proyectofinal_jsdfx.playback.AndroidAudioPlayer
+import com.davidlopez.proyectofinal_jsdfx.record.AndroidAudioRecorder
 import com.davidlopez.proyectofinal_jsdfx.sizeScreen.WindowInfo
 import com.davidlopez.proyectofinal_jsdfx.sizeScreen.rememberWindowInfo
 import com.davidlopez.proyectofinal_jsdfx.ui.theme.ProyectoFinal_JSDFXTheme
 import com.davidlopez.proyectofinal_jsdfx.viewModel.AppViewModelProvider
+import com.davidlopez.proyectofinal_jsdfx.viewModel.AudioViewModel
 import com.davidlopez.proyectofinal_jsdfx.viewModel.HomeViewModel
 import com.davidlopez.proyectofinal_jsdfx.viewModel.NoteEntryViewModel
 import kotlinx.coroutines.launch
+import java.io.File
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ActivityCompat.requestPermissions(this,
+            arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.POST_NOTIFICATIONS),
+            0)
         setContent {
             ProyectoFinal_JSDFXTheme {
                 // A surface container using the 'background' color from the theme
@@ -86,6 +101,9 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     AppNavigation()
+                    //val audioViewModel: AudioViewModel = viewModel()
+                    //ejemplo(audioViewModel, cacheDir)
+                    obtenerCacheDir(cacheDir)
                 }
             }
         }
@@ -253,75 +271,9 @@ fun App(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             if(tamanioPantalla.screenWindthInfo is WindowInfo.WindowType.Compact){
-                parteDeArribaCompacta(modifier = Modifier, viewModel = viewModel)
+                parteDeArribaCompacta(modifier = Modifier, viewModel = viewModel, navController = navController)
             }else{
                 parteDeArribaExtendida(modifier = Modifier, viewModel = viewModel)
-            }
-        },
-        bottomBar = {
-            Row(
-                modifier = Modifier
-                    .height(dimensionResource(id = R.dimen.masGrande))
-                    .background(Color(0, 66, 255, 255))
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ){
-                val botonIdioma = LocalContext.current.applicationContext
-                Button(
-                    onClick = { Toast.makeText(botonIdioma, "Español", Toast.LENGTH_SHORT).show() }
-                ) {
-                    Box{
-                        Image(
-                            painter = painterResource(id = R.drawable.traductor),
-                            contentDescription = null,
-                            modifier = modifier
-                                .size(
-                                    width = dimensionResource(R.dimen.mediano),
-                                    height = dimensionResource(R.dimen.mediano)
-                                )
-                                .aspectRatio(1f),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
-                }
-                Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
-                val botonAgregar = LocalContext.current.applicationContext
-                IconButton(
-                    onClick = {
-                        navController.navigate(route = AppScreens.AddScreen.route)
-                        Toast.makeText(botonAgregar, R.string.agregar, Toast.LENGTH_SHORT).show() },
-                    modifier = Modifier.size(
-                        width = dimensionResource(R.dimen.grande),
-                        height = dimensionResource(R.dimen.grande)
-                    )
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.a_adir),
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(), // La imagen ocupará todo el espacio del botón
-                        tint = Color.Unspecified // Puedes ajustar el color de la imagen si lo deseas
-                    )
-                }
-                Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
-                val botonTema = LocalContext.current.applicationContext
-                Button(
-                    onClick = { Toast.makeText(botonTema, R.string.tema, Toast.LENGTH_SHORT).show() }
-                ) {
-                    Box{
-                        Image(
-                            painter = painterResource(id = R.drawable.calendario),
-                            contentDescription = null,
-                            modifier = modifier
-                                .size(
-                                    width = dimensionResource(R.dimen.mediano),
-                                    height = dimensionResource(R.dimen.mediano)
-                                )
-                                .aspectRatio(1f),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
-                }
             }
         }
     ) {
@@ -373,7 +325,8 @@ private fun HomeBody(
 @Composable
 fun parteDeArribaCompacta(
     modifier: Modifier = Modifier,
-    viewModel: NoteEntryViewModel
+    viewModel: NoteEntryViewModel,
+    navController: NavController
 ){
     Column {
         Row (
@@ -423,7 +376,25 @@ fun parteDeArribaCompacta(
                     )
                 }
             )
-
+            val botonAgregar = LocalContext.current.applicationContext
+            IconButton(
+                onClick = {
+                    navController.navigate(route = AppScreens.AddScreen.route)
+                    Toast.makeText(botonAgregar, R.string.agregar, Toast.LENGTH_SHORT).show() },
+                modifier = Modifier.size(
+                    width = dimensionResource(R.dimen.medianoGrande),
+                    height = dimensionResource(R.dimen.medianoGrande)
+                )
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.a_adir),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(end = dimensionResource(R.dimen.padding_small))
+                        .fillMaxSize(), // La imagen ocupará todo el espacio del botón
+                    tint = Color.Unspecified // Puedes ajustar el color de la imagen si lo deseas
+                )
+            }
         }
     }
 }

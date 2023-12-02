@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Rather Plus Notes</string>
+    <string name="bienvenido">¡Bienvenido!</string>
     <string name="titulo">Titulo</string>
     <string name="tipo">Tipo</string>
     <string name="titulo_nota">Nota</string>
@@ -19,8 +20,19 @@
     <string name="eliminarNota">Eliminar</string>
     <string name="preguntaEliminar">¿Estás seguro de querer eliminar?</string>
     <string name="tema">Tema</string>
-    <string name="camara">Cámara</string>
-    <string name="galeria">Galería</string>
+    <string name="foto">Foto</string>
+    <string name="video">Video</string>
     <string name="archivos">Archivos</string>
     <string name="audio">Audio</string>
+    <string name="audioTexto">Pulsa Grabar para comenzar el audio</string>
+    <string name="grabar">Grabar</string>
+    <string name="parar">Parar</string>
+    <string name="reproducir">Reproducir</string>
+    <string name="detener">Detener</string>
+    <string name="definirHora">Hora</string>
+    <string name="recordatorio">Recordatorio establecido para: </string>
+    <string name="cantidadImagenes">Imágenes: </string>
+    <string name="mensajeEliminar">Eliminar última imagen</string>
+    <string name="cantidadVideos">Videos: </string>
+    <string name="mensajeEliminarVideo">Eliminar último video</string>
 </resources>

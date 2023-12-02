@@ -141,7 +141,7 @@ fun AppEditarNotaTarea(
                 ){
                     val botonCamara = LocalContext.current.applicationContext
                     Button(
-                        onClick = { Toast.makeText(botonCamara, R.string.camara, Toast.LENGTH_SHORT).show() }
+                        onClick = { Toast.makeText(botonCamara, R.string.foto, Toast.LENGTH_SHORT).show() }
                     ) {
                         Box{
                             Image(
