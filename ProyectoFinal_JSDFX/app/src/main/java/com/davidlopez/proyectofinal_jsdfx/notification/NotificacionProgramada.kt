@@ -17,7 +17,7 @@ class NotificacionProgramada:BroadcastReceiver() {
 
     private fun crearNotificacion(context: Context){
         val notificacion= NotificationCompat.Builder(context, "CanalNotas")
-            .setSmallIcon(R.drawable.calendario)
+            .setSmallIcon(R.drawable.notificacion)
             .setContentTitle("Tarea Programada")
             .setContentText("¡No me olvides!")
             .setStyle(

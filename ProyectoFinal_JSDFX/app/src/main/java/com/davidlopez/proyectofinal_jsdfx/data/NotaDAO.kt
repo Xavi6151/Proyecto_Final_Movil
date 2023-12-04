@@ -38,7 +38,7 @@ interface NotaDAO {
     @Delete
     suspend fun delete(imageNotaEntity: ImageEntity)
 
-    //videos
+    //VIDEOS
     @Query("SELECT uriVideo from videos WHERE idNota= :id")
     fun getAllVideos(id: Int): Flow<List<String>>
 
@@ -53,5 +53,21 @@ interface NotaDAO {
 
     @Delete
     suspend fun delete(videoEntity: VideoEntity)
+
+    //AUDIOS
+    @Query("SELECT uriAudio from audios WHERE idNota= :id")
+    fun getAllAudios(id: Int): Flow<List<String>>
+
+    @Query("DELETE from videos WHERE idNota= :id")
+    suspend fun deleteAllAudios(id: Int)
+
+    @Insert
+    suspend fun insert(audioEntity: AudioEntity)
+
+    @Update
+    suspend fun update(audioEntity: AudioEntity)
+
+    @Delete
+    suspend fun delete(audioEntity: AudioEntity)
 
 }

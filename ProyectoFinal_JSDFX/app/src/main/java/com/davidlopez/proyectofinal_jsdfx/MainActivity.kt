@@ -81,7 +81,6 @@ import com.davidlopez.proyectofinal_jsdfx.sizeScreen.WindowInfo
 import com.davidlopez.proyectofinal_jsdfx.sizeScreen.rememberWindowInfo
 import com.davidlopez.proyectofinal_jsdfx.ui.theme.ProyectoFinal_JSDFXTheme
 import com.davidlopez.proyectofinal_jsdfx.viewModel.AppViewModelProvider
-import com.davidlopez.proyectofinal_jsdfx.viewModel.AudioViewModel
 import com.davidlopez.proyectofinal_jsdfx.viewModel.HomeViewModel
 import com.davidlopez.proyectofinal_jsdfx.viewModel.NoteEntryViewModel
 import kotlinx.coroutines.launch

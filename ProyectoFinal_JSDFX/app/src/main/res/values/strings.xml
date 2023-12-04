@@ -30,9 +30,11 @@
     <string name="reproducir">Reproducir</string>
     <string name="detener">Detener</string>
     <string name="definirHora">Hora</string>
-    <string name="recordatorio">Recordatorio establecido para: </string>
-    <string name="cantidadImagenes">Imágenes: </string>
+    <string name="recordatorio">"Recordatorio establecido para: "</string>
+    <string name="cantidadImagenes">"Imágenes: "</string>
     <string name="mensajeEliminar">Eliminar última imagen</string>
-    <string name="cantidadVideos">Videos: </string>
+    <string name="cantidadVideos">"Videos: "</string>
     <string name="mensajeEliminarVideo">Eliminar último video</string>
+    <string name="cantidadAudios">"Audios: "</string>
+    <string name="mensajeEliminarAudio">Eliminar último audio</string>
 </resources>

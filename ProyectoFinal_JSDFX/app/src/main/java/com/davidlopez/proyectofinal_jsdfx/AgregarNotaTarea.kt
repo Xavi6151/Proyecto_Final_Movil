@@ -9,8 +9,10 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.media.AsyncPlayer
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -32,6 +34,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.material3.AlertDialog
@@ -54,6 +57,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
@@ -67,6 +71,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.net.toUri
@@ -77,14 +82,20 @@ import com.davidlopez.proyectofinal_jsdfx.data.DataSourceNotasTareas
 import com.davidlopez.proyectofinal_jsdfx.navigation.AppScreens
 import com.davidlopez.proyectofinal_jsdfx.notification.NotificacionProgramada
 import com.davidlopez.proyectofinal_jsdfx.notification.NotificacionProgramada.Companion.NOTIFICACION_ID
+import com.davidlopez.proyectofinal_jsdfx.playback.AndroidAudioPlayer
+import com.davidlopez.proyectofinal_jsdfx.record.AndroidAudioRecorder
 import com.davidlopez.proyectofinal_jsdfx.sizeScreen.WindowInfo
 import com.davidlopez.proyectofinal_jsdfx.sizeScreen.rememberWindowInfo
 import com.davidlopez.proyectofinal_jsdfx.viewModel.AppViewModelProvider
-import com.davidlopez.proyectofinal_jsdfx.viewModel.AudioViewModel
 import com.davidlopez.proyectofinal_jsdfx.viewModel.HomeViewModel
 import com.davidlopez.proyectofinal_jsdfx.viewModel.NoteDetails
+import com.davidlopez.proyectofinal_jsdfx.viewModel.NoteEditViewModel
 import com.davidlopez.proyectofinal_jsdfx.viewModel.NoteEntryViewModel
 import com.davidlopez.proyectofinal_jsdfx.viewModel.NoteUiState
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.ui.PlayerView
 import kotlinx.coroutines.launch
 import java.io.File
 import java.time.LocalTime
@@ -94,24 +105,22 @@ import java.util.Calendar
 @Composable
 fun DespliegueAgregarNotaTarea(
     contentPadding: PaddingValues,
-    viewModel: NoteEntryViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    audioViewModel: AudioViewModel
+    viewModel: NoteEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ){
-    val coroutineScope = rememberCoroutineScope()
+    val context= LocalContext.current
+    val audioRecorder = AndroidAudioRecorder(context)
     VentanaDialogoAgregarAudio(
         show =  viewModel.showAudio ,
         onDismiss = {
-            audioViewModel.recorder.stop()
+            audioRecorder.stop()
             viewModel.updateShowAudio(false)
         },
         onConfirm = {
-            coroutineScope.launch {
-                File(dato, "audio.mp3").also{
-                    audioViewModel.recorder.start(it)
-                    audioViewModel.audioFile = it
-                    viewModel.listaAudios.add(it.toUri())
-                }
-            }
+            viewModel.updateFileNumb(viewModel.fileNumb+1)
+            Log.d("filename",""+viewModel.fileNumb)
+            audioRecorder.start(File("dummy"),viewModel.fileNumb)
+            viewModel.updateHasAudio(true)
+            viewModel.updateUrisAudiosList(audioRecorder.getContentUri())
         },
         titulo = stringResource(id = R.string.audio),
         text = stringResource(id = R.string.audioTexto)
@@ -178,7 +187,16 @@ fun AddTextCard(
         Column(
             modifier = Modifier.weight(0.5f)
         ) {
-
+            verVideos(viewModel = viewModel)
+        }
+    }
+    Row(
+        modifier = Modifier.fillMaxWidth()
+    ){
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            verAudios(viewModel = viewModel)
         }
     }
 }
@@ -189,8 +207,7 @@ fun AppAgregarNotaTarea(
     modifier: Modifier = Modifier,
     navController: NavController,
     viewModel: NoteEntryViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    viewModelHome: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    viewModelAudio: AudioViewModel = viewModel()
+    viewModelHome: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 )
 {
     val tamanioPantalla = rememberWindowInfo()
@@ -219,42 +236,20 @@ fun AppAgregarNotaTarea(
                     VideoCapture(viewModel = viewModel, modifier = modifier)
                     Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
 
-                    val botonMicrofono = LocalContext.current.applicationContext
-                    Button(
-                        onClick = {
-                            viewModelHome.updateShow(true)
-                            Toast.makeText(botonMicrofono, R.string.audio, Toast.LENGTH_SHORT).show()
-                        }
-                    ) {
-                        Box{
-                            Image(
-                                painter = painterResource(id = R.drawable.microfono),
-                                contentDescription = null,
-                                modifier = modifier
-                                    .size(
-                                        width = dimensionResource(R.dimen.pequeño),
-                                        height = dimensionResource(R.dimen.pequeño)
-                                    )
-                                    .aspectRatio(1f),
-                                contentScale = ContentScale.Crop
-                            )
-                        }
-                    }
+                    AudioCapture(viewModel = viewModel, modifier = modifier)
                     Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
-                    Recordatorio(
-                        viewModel = viewModel,
-                        modifier = Modifier
-                    )
+
+                    Recordatorio(viewModel = viewModel, modifier = Modifier)
                 }
             }
         }
     ){
-        DespliegueAgregarNotaTarea(contentPadding = it, audioViewModel = viewModelAudio)
+        DespliegueAgregarNotaTarea(contentPadding = it)
     }
 }
 
 @Composable
-fun TituloNoteEntryBody(
+private fun TituloNoteEntryBody(
     noteUiState: NoteUiState,
     onNoteValueChange: (NoteDetails) -> Unit
 ){
@@ -266,7 +261,7 @@ fun TituloNoteEntryBody(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TituloNota(
+private fun TituloNota(
     noteDetails: NoteDetails,
     onValueChange: (NoteDetails) -> Unit = {}
 ){
@@ -287,7 +282,7 @@ fun TituloNota(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun parteDeArriba2Compacta(
+private fun parteDeArriba2Compacta(
     modifier: Modifier = Modifier,
     navController: NavController,
     viewModel: NoteEntryViewModel
@@ -386,7 +381,7 @@ fun parteDeArriba2Compacta(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun parteDeArriba2Extendida(
+private fun parteDeArriba2Extendida(
     modifier: Modifier = Modifier,
     navController: NavController,
     viewModel: NoteEntryViewModel
@@ -474,33 +469,6 @@ fun parteDeArriba2Extendida(
 }
 
 @Composable
-fun VentanaDialogoAudioEditar(
-    show:Boolean,
-    onDismiss:()->Unit,
-    onConfirm:()->Unit,
-    titulo:String,
-    text:String
-){
-    if(show) {
-        AlertDialog(
-            onDismissRequest = { onDismiss() },
-            confirmButton = {
-                TextButton(onClick = { onConfirm() }) {
-                    Text(text = stringResource(id = R.string.confirmar))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { onDismiss() }) {
-                    Text(text = stringResource(id = R.string.cancelar))
-                }
-            },
-            title = { Text(titulo) },
-            text = { Text(text) }
-        )
-    }
-}
-
-@Composable
 fun VentanaDialogoAgregarAudio(
     show:Boolean,
     onDismiss:()->Unit,
@@ -528,34 +496,7 @@ fun VentanaDialogoAgregarAudio(
 }
 
 @Composable
-fun VentanaDialogoReproducirAudio(
-    show:Boolean,
-    onDismiss:()->Unit,
-    onConfirm:()->Unit,
-    titulo:String,
-    text:String
-){
-    if(show) {
-        AlertDialog(
-            onDismissRequest = { onDismiss() },
-            confirmButton = {
-                TextButton(onClick = {onConfirm() }) {
-                    Text(text = stringResource(id = R.string.reproducir))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { onDismiss() }) {
-                    Text(text = stringResource(id = R.string.detener))
-                }
-            },
-            title = { Text(titulo) },
-            text = { Text(text) }
-        )
-    }
-}
-
-@Composable
-fun Notificaciones(
+private fun Notificaciones(
     milisegundos: Long,
     viewModel: NoteEntryViewModel
 ){
@@ -570,7 +511,7 @@ fun Notificaciones(
     }
 }
 
-fun crearCanalNotificacion(
+private fun crearCanalNotificacion(
     idCanal: String,
     context: Context
 ){
@@ -590,7 +531,7 @@ fun crearCanalNotificacion(
 }
 
 @SuppressLint("ScheduleExactAlarm")
-fun notificacionProgramada(context: Context, milisegundos:Long)
+private fun notificacionProgramada(context: Context, milisegundos:Long)
 {
     val intent= Intent(context, NotificacionProgramada::class.java)
     val pendingIntent=PendingIntent.getBroadcast(
@@ -611,7 +552,7 @@ fun notificacionProgramada(context: Context, milisegundos:Long)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Reloj(
+private fun Reloj(
     viewModel: NoteEntryViewModel
 ){
     if(viewModel.showReloj){
@@ -648,7 +589,7 @@ fun Reloj(
 }
 
 @Composable
-fun opcionesRecordatorios(
+private fun opcionesRecordatorios(
     viewModel: NoteEntryViewModel,
 ){
     if(viewModel.showOption){
@@ -718,7 +659,7 @@ fun opcionesRecordatorios(
 }
 
 @Composable
-fun Recordatorio(
+private fun Recordatorio(
     viewModel: NoteEntryViewModel,
     modifier:Modifier
 ){
@@ -733,7 +674,7 @@ fun Recordatorio(
         Box{
             if(viewModel.recordatorio){
                 Image(
-                    painter = painterResource(id = R.drawable.calendario),
+                    painter = painterResource(id = R.drawable.notificacion),
                     contentDescription = null,
                     modifier = modifier
                         .size(
@@ -745,7 +686,7 @@ fun Recordatorio(
                 )
             }else{
                 Image(
-                    painter = painterResource(id = R.drawable.calendario),
+                    painter = painterResource(id = R.drawable.notificacion),
                     contentDescription = null,
                     modifier = modifier
                         .size(
@@ -763,7 +704,7 @@ fun Recordatorio(
 }
 
 @Composable
-fun verImagenes(
+private fun verImagenes(
     viewModel: NoteEntryViewModel,
     modifier:Modifier=Modifier
 ) {
@@ -783,7 +724,7 @@ fun verImagenes(
             if (viewModel.hasImage){
                 LazyColumn(modifier = modifier
                     .fillMaxWidth()
-                    .height(400.dp)
+                    .height(200.dp)
                     .padding(top = 4.dp)) {
                     items(viewModel.urislist.toList()) { uri ->
                         Surface(
@@ -792,13 +733,24 @@ fun verImagenes(
                                 viewModel.updateUriMostrar(uri)
                             },
                             modifier = modifier
-                                .size(width = 100.dp, height = 120.dp)
+                                .size(
+                                    width = dimensionResource(R.dimen.masGrande),
+                                    height = dimensionResource(R.dimen.masGrande)
+                                )
                         ){
-                            AsyncImage(
-                                model = uri,
-                                modifier = Modifier.fillMaxWidth(),
-                                contentDescription = "Selected image",
-                            )
+                            Box{
+                                Image(
+                                    painter = painterResource(id = R.drawable.imagen),
+                                    contentDescription = null,
+                                    modifier = modifier
+                                        .size(
+                                            width = dimensionResource(R.dimen.masGrande),
+                                            height = dimensionResource(R.dimen.masGrande)
+                                        )
+                                        .aspectRatio(1f),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
                         }
                     }
                 }
@@ -814,7 +766,7 @@ fun verImagenes(
                     Column(
                         modifier=modifier.weight(0.2f)
                     ) {
-                        filesCapture(viewModel = viewModel)
+                        filesImageCapture(viewModel = viewModel)
                     }
                     Column(
                         modifier=modifier.weight(0.8f)
@@ -835,7 +787,7 @@ fun verImagenes(
 }
 
 @Composable
-fun mostrarImagen(
+private fun mostrarImagen(
     viewModel: NoteEntryViewModel,
     uri: Uri?
 ){
@@ -854,7 +806,7 @@ fun mostrarImagen(
 }
 
 @Composable
-fun filesCapture(
+private fun filesImageCapture(
     viewModel: NoteEntryViewModel
 ){
     val imagePicker = rememberLauncherForActivityResult(
@@ -883,7 +835,7 @@ fun filesCapture(
 }
 
 @Composable
-fun ImageCapture(
+private fun ImageCapture(
     viewModel: NoteEntryViewModel,
     modifier:Modifier
 ){
@@ -923,7 +875,7 @@ fun ImageCapture(
 }
 
 @Composable
-fun verVideos(
+private fun verVideos(
     viewModel: NoteEntryViewModel,
     modifier:Modifier=Modifier
 ) {
@@ -943,7 +895,7 @@ fun verVideos(
             if (viewModel.hasVideo){
                 LazyColumn(modifier = modifier
                     .fillMaxWidth()
-                    .height(400.dp)
+                    .height(200.dp)
                     .padding(top = 4.dp)) {
                     items(viewModel.urisVideolist.toList()) { uri ->
                         Surface(
@@ -952,17 +904,28 @@ fun verVideos(
                                 viewModel.updateUriMostrar(uri)
                             },
                             modifier = modifier
-                                .size(width = 100.dp, height = 120.dp)
+                                .size(
+                                    width = dimensionResource(R.dimen.masGrande),
+                                    height = dimensionResource(R.dimen.masGrande)
+                                )
                         ){
-                            AsyncImage(
-                                model = uri,
-                                modifier = Modifier.fillMaxWidth(),
-                                contentDescription = "Selected image",
-                            )
+                            Box{
+                                Image(
+                                    painter = painterResource(id = R.drawable.video),
+                                    contentDescription = null,
+                                    modifier = modifier
+                                        .size(
+                                            width = dimensionResource(R.dimen.masGrande),
+                                            height = dimensionResource(R.dimen.masGrande)
+                                        )
+                                        .aspectRatio(1f),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
                         }
                     }
                 }
-                mostrarImagen(viewModel = viewModel, uri = viewModel.uriMostrar)
+                mostrarVideo(viewModel = viewModel, uri = viewModel.uriMostrar)
             }
             Column (
                 modifier=modifier.fillMaxWidth(),
@@ -974,18 +937,18 @@ fun verVideos(
                     Column(
                         modifier=modifier.weight(0.2f)
                     ) {
-                        filesCapture(viewModel = viewModel)
+                        filesVideoCapture(viewModel = viewModel)
                     }
                     Column(
                         modifier=modifier.weight(0.8f)
                     ) {
                         Button(
-                            enabled = viewModel.cantidadImagenes!=0,
+                            enabled = viewModel.cantidadVideos!=0,
                             onClick = {
-                                viewModel.deleteLastUri()
+                                viewModel.deleteLastVideoUri()
                             },
                             contentPadding = PaddingValues(10.dp)) {
-                            Text(text = stringResource(id = R.string.mensajeEliminar))
+                            Text(text = stringResource(id = R.string.mensajeEliminarVideo))
                         }
                     }
                 }
@@ -995,26 +958,77 @@ fun verVideos(
 }
 
 @Composable
-fun mostrarVideo(
-    viewModel: NoteEntryViewModel,
-    uri: Uri?
+private fun VideoPlayer(
+    videoUri: Uri, context:Context
 ){
-    if(viewModel.mostrarImagen){
+    val exoPlayer = remember {
+        SimpleExoPlayer.Builder(context).build().apply {
+            setMediaItem(MediaItem.fromUri(videoUri))
+            prepare()
+        }
+    }
+    DisposableEffect(exoPlayer) {
+        onDispose {
+            exoPlayer.release() // Liberar el exoPlayer
+        }
+    }
+    AndroidView(
+        factory = { context ->
+            PlayerView(context).apply {
+                player = exoPlayer
+            }
+        },
+        modifier = Modifier.fillMaxWidth(.8f)
+    )
+}
+
+@Composable
+private fun mostrarVideo(
+    viewModel: NoteEntryViewModel,
+    uri: Uri
+){
+    if(viewModel.mostrarVideo){
         Dialog(
             properties = DialogProperties(dismissOnClickOutside = true),
-            onDismissRequest = { viewModel.updateMostrarImagen(false) }
+            onDismissRequest = { viewModel.updateMostrarVideo(false) }
         ) {
-            AsyncImage(
-                model = uri,
-                modifier = Modifier.fillMaxSize(.9f),
-                contentDescription = "Amplied image",
-            )
+            var Context = LocalContext.current
+            VideoPlayer(videoUri = uri, context = Context)
         }
     }
 }
 
 @Composable
-fun VideoCapture(
+private fun filesVideoCapture(
+    viewModel: NoteEntryViewModel
+){
+    val videoPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri ->
+            viewModel.updatehasVideo(uri != null)
+            if(viewModel.hasVideo){
+                viewModel.updateUrisVideoList(uri)
+            }
+        }
+    )
+    IconButton(
+        onClick = {
+            videoPicker.launch("video/*")
+        }
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.achivo),
+            contentDescription ="",
+            modifier = Modifier
+                .padding(all = dimensionResource(R.dimen.padding_small))
+                .fillMaxSize(),
+            tint = Color.Unspecified
+        )
+    }
+}
+
+@Composable
+private fun VideoCapture(
     viewModel: NoteEntryViewModel,
     modifier:Modifier
 ){
@@ -1024,22 +1038,22 @@ fun VideoCapture(
         contract = ActivityResultContracts.CaptureVideo(),
         onResult = { success ->
             if(success){
-                viewModel.updatehasImage(success)
-                viewModel.updateUrisList(uri)
+                viewModel.updatehasVideo(success)
+                viewModel.updateUrisVideoList(uri)
             }
         }
     )
     val botonCamara = LocalContext.current.applicationContext
     Button(
         onClick = {
-            uri = ComposeFileProvider.getImageUri(context)
+            uri = ComposeFileProvider.getVideoUri(context)
             videoLauncher.launch(uri)
             Toast.makeText(botonCamara, R.string.video, Toast.LENGTH_SHORT).show()
         }
     ) {
         Box{
             Image(
-                painter = painterResource(id = R.drawable.achivo),
+                painter = painterResource(id = R.drawable.grabarvideo),
                 contentDescription = null,
                 modifier = modifier
                     .size(
@@ -1051,4 +1065,122 @@ fun VideoCapture(
             )
         }
     }
+}
+
+@Composable
+private fun verAudios(
+    viewModel: NoteEntryViewModel,
+    modifier:Modifier=Modifier
+) {
+    Row(
+        modifier= modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp)
+    ) {
+        Column {
+            Row(
+                modifier=modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = stringResource(id = R.string.cantidadAudios)+viewModel.cantidadAudios,
+                    modifier=modifier.weight(.4f))
+                Row (
+                    modifier=modifier.weight(.6f),
+                    horizontalArrangement = Arrangement.End
+                ){
+                    Button(
+                        enabled = viewModel.cantidadAudios!=0,
+                        onClick = {
+                            viewModel.deleteLastUriAudios()
+                        },
+                        contentPadding = PaddingValues(10.dp)) {
+                        Text(text = stringResource(id = R.string.mensajeEliminarAudio))
+                    }
+                }
+            }
+            if (viewModel.hasAudio){
+                LazyRow(modifier = modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp)) {
+                    items(viewModel.urisAudioslist.toList()) { uri ->
+                        Surface(
+                            onClick = {
+                                viewModel.updateMostrarAudio(true)
+                                viewModel.updateUriMostrar(uri)
+                            },
+                            modifier = modifier
+                                .size(width = 64.dp, height = 64.dp)
+                        ){
+                            Icon(painter = painterResource(id = R.drawable.microfono), contentDescription = "")
+                        }
+                        Log.d("audiosPrueba",""+uri)
+                    }
+                }
+                Reproducir(viewModel = viewModel, uri = viewModel.uriMostrar)
+            }
+        }
+    }
+}
+
+@Composable
+private fun Reproducir(
+    viewModel: NoteEntryViewModel,
+    uri: Uri
+){
+    val audioPlayer = AndroidAudioPlayer(LocalContext.current)
+    if(viewModel.mostrarAudio){
+        AlertDialog(
+            onDismissRequest = {
+                viewModel.updateMostrarAudio(false)
+                audioPlayer.stop()
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    audioPlayer.playFile(uri)
+                }) {
+                    Text(text = stringResource(id = R.string.reproducir))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    audioPlayer.stop()
+                    viewModel.updateMostrarAudio(false)
+                }) {
+                    Text(text = stringResource(id = R.string.cancelar))
+                }
+            },
+            title = { Text(stringResource(id = R.string.audio)) }
+        )
+
+    }
+}
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun AudioCapture(
+    viewModel: NoteEntryViewModel,
+    modifier:Modifier
+){
+    val botonMicrofono = LocalContext.current.applicationContext
+    Button(
+        onClick = {
+            viewModel.updateShowAudio(true)
+            Toast.makeText(botonMicrofono, R.string.audio, Toast.LENGTH_SHORT).show()
+        }
+    ) {
+        Box{
+            Image(
+                painter = painterResource(id = R.drawable.microfono),
+                contentDescription = null,
+                modifier = modifier
+                    .size(
+                        width = dimensionResource(R.dimen.pequeño),
+                        height = dimensionResource(R.dimen.pequeño)
+                    )
+                    .aspectRatio(1f),
+                contentScale = ContentScale.Crop
+            )
+        }
+    }
+
 }

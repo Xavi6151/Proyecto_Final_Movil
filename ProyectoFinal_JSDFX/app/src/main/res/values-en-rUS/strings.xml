@@ -31,8 +31,10 @@
     <string name="detener">Stop</string>
     <string name="definirHora">Hour</string>
     <string name="recordatorio">"Reminder set to: "</string>
-    <string name="cantidadImagenes">Images:</string>
+    <string name="cantidadImagenes">"Images: "</string>
     <string name="mensajeEliminar">Delete last image</string>
     <string name="cantidadVideos">"Videos: "</string>
     <string name="mensajeEliminarVideo">Delete last video</string>
+    <string name="cantidadAudios">"Audios: "</string>
+    <string name="mensajeEliminarAudio">Delete last audio</string>
 </resources>

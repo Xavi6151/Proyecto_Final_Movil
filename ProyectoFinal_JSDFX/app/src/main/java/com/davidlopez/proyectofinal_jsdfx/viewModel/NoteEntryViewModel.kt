@@ -7,9 +7,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.davidlopez.proyectofinal_jsdfx.R
+import com.davidlopez.proyectofinal_jsdfx.data.AudioEntity
 import com.davidlopez.proyectofinal_jsdfx.data.ImageEntity
 import com.davidlopez.proyectofinal_jsdfx.data.NotaEntity
 import com.davidlopez.proyectofinal_jsdfx.data.NotesRepository
+import com.davidlopez.proyectofinal_jsdfx.data.VideoEntity
 import java.util.Calendar
 import java.util.TimeZone
 
@@ -22,22 +24,32 @@ class NoteEntryViewModel(private val notesRepository: NotesRepository) : ViewMod
         noteUiState =
             NoteUiState(noteDetails = noteDetails, isEntryValid = validateInput(noteDetails))
     }
-
     suspend fun saveNote() {
         if (validateInput()) {
             var id=notesRepository.insertNote(noteUiState.noteDetails.toNote())
             saveImages(id)
-            //saveVideos(id)
+            saveVideos(id)
+            saveAudios(id)
         }
     }
-
     suspend fun saveImages(id:Long){
         urislist.forEach{uri->
             var imageNota= ImageEntity(0, id.toInt(),""+uri)
             notesRepository.insertImage(imageNota)
         }
     }
-
+    suspend fun saveVideos(id:Long){
+        urisVideolist.forEach{uri->
+            var videoNota= VideoEntity(0,id.toInt() ,""+uri)
+            notesRepository.insertVideo(videoNota)
+        }
+    }
+    suspend fun saveAudios(id:Long){
+        urisAudioslist.forEach{uri->
+            var videoNota= AudioEntity(0,id.toInt() ,""+uri)
+            notesRepository.insertAudio(videoNota)
+        }
+    }
     private fun validateInput(uiState: NoteDetails = noteUiState.noteDetails): Boolean {
         return with(uiState) {
             titulo.isNotBlank() && contenido.isNotBlank() && fecha.isNotBlank()
@@ -57,25 +69,15 @@ class NoteEntryViewModel(private val notesRepository: NotesRepository) : ViewMod
     var recordatorio by mutableStateOf(false)
 
     fun updateShowReloj(boolean: Boolean){ showReloj= boolean }
-
     fun updateRecordatorio(boolean: Boolean){ recordatorio= boolean }
-
     fun updateShowOption(boolean: Boolean){ showOption= boolean }
-
     fun updateCalcular(boolean: Boolean){ calcular= boolean }
-
     fun actualizarOpcion(text: String){ opcion=text }
-
     fun actualizarExpandidoTipo(boolean: Boolean){ expandidoTipo=boolean }
-
     fun updateNotificacion(boolean: Boolean){ notificacion=boolean }
-
     fun updateHora(string: String){ hora=string }
-
     fun updateHour(int: Int){ hour=int }
-
     fun updateMinuto(int: Int){ minute=int }
-
     fun updateUriMostrar(uri: Uri?){ uriMostrar=uri }
 
     //imagen
@@ -86,17 +88,14 @@ class NoteEntryViewModel(private val notesRepository: NotesRepository) : ViewMod
     var urislist= mutableStateListOf<Uri?>()
 
     fun updatehasImage(boolean: Boolean){ hasImage= boolean }
-
     fun updateUrisList(uri: Uri?){
         urislist.add(uri)
         cantidadImagenes=urislist.size
     }
-
     fun deleteLastUri(){
         urislist.removeLast()
         cantidadImagenes=urislist.size
     }
-
     fun updateMostrarImagen(boolean: Boolean){ mostrarImagen= boolean }
 
     //videos
@@ -107,31 +106,32 @@ class NoteEntryViewModel(private val notesRepository: NotesRepository) : ViewMod
     var urisVideolist= mutableStateListOf<Uri?>()
 
     fun updatehasVideo(boolean: Boolean){ hasVideo= boolean }
-
     fun updateUrisVideoList(uri: Uri?){
         urisVideolist.add(uri)
         cantidadVideos=urisVideolist.size
     }
-
     fun deleteLastVideoUri(){
         urisVideolist.removeLast()
         cantidadVideos=urisVideolist.size
     }
-
     fun updateMostrarVideo(boolean: Boolean){ mostrarVideo= boolean }
+
     //audios
-    val listaAudios = mutableStateListOf<Uri>()
+    var hasAudio by mutableStateOf(false)
+    var mostrarAudio by mutableStateOf(false)
     var cantidadAudios by mutableStateOf(0)
     var urisAudioslist= mutableStateListOf<Uri?>()
     var showAudio by mutableStateOf(false)
+    var fileNumb by mutableStateOf(0)
 
+    fun updateFileNumb(int: Int){ fileNumb=int }
+    fun updateMostrarAudio(boolean: Boolean){ mostrarAudio= boolean }
+    fun updateHasAudio(boolean: Boolean){ hasAudio= boolean }
     fun updateShowAudio(boolean: Boolean){ showAudio= boolean }
-
-    fun updateUrisAudiosList(uri: Uri){
+    fun updateUrisAudiosList(uri: Uri?){
         urisAudioslist.add(uri)
         cantidadAudios=urisAudioslist.size
     }
-
     fun deleteLastUriAudios(){
         urisAudioslist.removeLast()
         cantidadAudios=urisAudioslist.size
