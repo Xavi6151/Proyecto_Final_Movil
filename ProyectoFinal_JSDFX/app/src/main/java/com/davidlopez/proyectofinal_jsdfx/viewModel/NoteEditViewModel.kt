@@ -1,6 +1,7 @@
 package com.davidlopez.proyectofinal_jsdfx.viewModel
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.TimeZone
+import kotlin.math.log
 
 class NoteEditViewModel(
     savedStateHandle: SavedStateHandle,
@@ -34,32 +36,9 @@ class NoteEditViewModel(
     }
     suspend fun updateNote() {
         if (validateInput()) {
-            noteUiState.noteDetails.tipo=opcion
             notesRepository.updateNote(noteUiState.noteDetails.toNoteEdit())
-            updateImages()
-            updateVideos()
-            updateAudios()
-        }
-    }
-    suspend fun updateImages(){
-        notesRepository.deleteAllImages(itemId)
-        urislist.forEach{uri->
-            var imageNota = ImageEntity(0, itemId,""+uri)
-            notesRepository.insertImage(imageNota)
-        }
-    }
-    suspend fun updateVideos(){
-        notesRepository.deleteAllVideos(itemId)
-        urisVideolist.forEach{uri->
-            var videoNota = VideoEntity(0, itemId,""+uri)
-            notesRepository.insertVideo(videoNota)
-        }
-    }
-    suspend fun updateAudios(){
-        notesRepository.deleteAllAudios(itemId)
-        urisAudiolist.forEach{uri->
-            var audioNota = AudioEntity(0, itemId,""+uri)
-            notesRepository.insertAudio(audioNota)
+            notesRepository.upTraImagenes(urislist, itemId)
+            notesRepository.upTraVideos(urisVideolist, itemId)
         }
     }
     private fun validateInput(uiState: NoteDetailsEditar = noteUiState.noteDetails): Boolean {
@@ -77,6 +56,7 @@ class NoteEditViewModel(
     private val itemId: Int = checkNotNull(savedStateHandle["id"])
     var urislist= mutableStateListOf<Uri?>()
     var urisVideolist= mutableStateListOf<Uri?>()
+    var urisAudiolist= mutableStateListOf<Uri?>()
     init {
         viewModelScope.launch {
             noteUiState = notesRepository.getNoteStream(itemId)
@@ -199,18 +179,10 @@ class NoteEditViewModel(
     //audios
     var hasAudio by mutableStateOf(false)
     var mostrarAudio by mutableStateOf(false)
-    var showAudio by mutableStateOf(false)
     var fileNumb by mutableStateOf(0)
-    var urisAudiolist= mutableStateListOf<Uri?>()
 
     fun updateFileNumb(int: Int){ fileNumb=int }
     fun updateMostrarAudio(boolean: Boolean){ mostrarAudio= boolean }
-    fun updatehasAudio(boolean: Boolean){ hasAudio= boolean }
-    fun updateShowAudio(boolean: Boolean){ showAudio= boolean }
-    fun updateUrisAudioList(uri: Uri?){
-        urisAudiolist.add(uri)
-        cantidadAudios=urisAudiolist.size
-    }
     fun deleteLastUriAudios(){
         urisAudiolist.removeLast()
         cantidadAudios=urisAudiolist.size
@@ -227,16 +199,14 @@ data class NoteDetailsEditar(
     val titulo: String = "",
     val contenido: String = "",
     val fecha: String = "" + Calendar.getInstance(TimeZone.getTimeZone("America/Mexico_City")).get(Calendar.DAY_OF_MONTH)+
-            "/"+(Calendar.getInstance().get(Calendar.MONTH)+1)+"/"+Calendar.getInstance().get(Calendar.YEAR),
-    var tipo:String=""
+            "/"+(Calendar.getInstance().get(Calendar.MONTH)+1)+"/"+Calendar.getInstance().get(Calendar.YEAR)
 )
 
 fun NoteDetailsEditar.toNoteEdit(): NotaEntity = NotaEntity(
     id = id,
     titulo = titulo,
     contenido = contenido,
-    fecha = fecha,
-    tipo=tipo
+    fecha = fecha
 )
 
 fun NotaEntity.toNoteUiStateEditar(isEntryValid: Boolean = false): NoteUiStateEditar = NoteUiStateEditar(
@@ -248,6 +218,5 @@ fun NotaEntity.toNoteDetailsEditar(): NoteDetailsEditar = NoteDetailsEditar(
     id = id,
     titulo = titulo,
     contenido = contenido,
-    fecha = fecha,
-    tipo=tipo
+    fecha = fecha
 )

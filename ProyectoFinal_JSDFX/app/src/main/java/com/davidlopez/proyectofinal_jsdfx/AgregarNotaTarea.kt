@@ -201,7 +201,6 @@ fun AddTextCard(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppAgregarNotaTarea(
     modifier: Modifier = Modifier,
@@ -648,7 +647,9 @@ private fun opcionesRecordatorios(
                             var time= LocalTime.now()
                             var time2=LocalTime.of(viewModel.hour,viewModel.minute,0)
                             val dif=time.until(time2, ChronoUnit.MILLIS)
-                            Notificaciones(dif,viewModel)
+                            if(dif>0){
+                                Notificaciones(dif,viewModel)
+                            }
                             viewModel.updateShowOption(false)
                         }
                     }
@@ -1157,7 +1158,7 @@ private fun Reproducir(
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun AudioCapture(
+private fun AudioCapture(
     viewModel: NoteEntryViewModel,
     modifier:Modifier
 ){
@@ -1182,5 +1183,4 @@ fun AudioCapture(
             )
         }
     }
-
 }

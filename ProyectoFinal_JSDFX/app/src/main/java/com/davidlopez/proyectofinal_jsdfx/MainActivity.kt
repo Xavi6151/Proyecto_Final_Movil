@@ -272,7 +272,7 @@ fun App(
             if(tamanioPantalla.screenWindthInfo is WindowInfo.WindowType.Compact){
                 parteDeArribaCompacta(modifier = Modifier, viewModel = viewModel, navController = navController)
             }else{
-                parteDeArribaExtendida(modifier = Modifier, viewModel = viewModel)
+                parteDeArribaExtendida(modifier = Modifier, viewModel = viewModel, navController = navController)
             }
         }
     ) {
@@ -402,7 +402,8 @@ fun parteDeArribaCompacta(
 @Composable
 fun parteDeArribaExtendida(
     modifier: Modifier = Modifier,
-    viewModel: NoteEntryViewModel
+    viewModel: NoteEntryViewModel,
+    navController: NavController
 ){
     Column {
         Row (
@@ -421,31 +422,25 @@ fun parteDeArribaExtendida(
                     .padding(start = dimensionResource(R.dimen.padding_large))
             )
             Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
-            TextField(
-                value = "Search",
-                textStyle = MaterialTheme.typography.bodyLarge,
-                onValueChange = {},
-                modifier = modifier
-                    .height(52.dp)
-                    .weight(0.5f)
-                    .padding(
-                        start = dimensionResource(R.dimen.padding_small),
-                        end = dimensionResource(R.dimen.padding_small)
-                    ),
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.buscar),
-                        contentDescription = null,
-                        modifier = modifier
-                            .padding(
-                                start = dimensionResource(R.dimen.padding_small),
-                                top = dimensionResource(R.dimen.padding_small),
-                                end = dimensionResource(R.dimen.padding_small),
-                                bottom = dimensionResource(R.dimen.padding_small)
-                            )
-                    )
-                }
-            )
+            val botonAgregar = LocalContext.current.applicationContext
+            IconButton(
+                onClick = {
+                    navController.navigate(route = AppScreens.AddScreen.route)
+                    Toast.makeText(botonAgregar, R.string.agregar, Toast.LENGTH_SHORT).show() },
+                modifier = Modifier.size(
+                    width = dimensionResource(R.dimen.medianoGrande),
+                    height = dimensionResource(R.dimen.medianoGrande)
+                )
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.a_adir),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(end = dimensionResource(R.dimen.padding_small))
+                        .fillMaxSize(), // La imagen ocupará todo el espacio del botón
+                    tint = Color.Unspecified // Puedes ajustar el color de la imagen si lo deseas
+                )
+            }
         }
     }
 }

@@ -87,9 +87,11 @@ import com.davidlopez.proyectofinal_jsdfx.viewModel.AppViewModelProvider
 import com.davidlopez.proyectofinal_jsdfx.viewModel.NoteDetails
 import com.davidlopez.proyectofinal_jsdfx.viewModel.NoteDetailsEditar
 import com.davidlopez.proyectofinal_jsdfx.viewModel.NoteEditViewModel
+import com.davidlopez.proyectofinal_jsdfx.viewModel.NoteEntryViewModel
 import com.davidlopez.proyectofinal_jsdfx.viewModel.NoteUiState
 import com.davidlopez.proyectofinal_jsdfx.viewModel.NoteUiStateEditar
 import com.davidlopez.proyectofinal_jsdfx.viewModel.toNoteDetails
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ui.PlayerView
@@ -111,23 +113,6 @@ fun DespliegueEditarNotaTarea(
     contentPadding: PaddingValues,
     viewModel: NoteEditViewModel
 ){
-    val context= LocalContext.current
-    val audioRecorder = AndroidAudioRecorder(context)
-    VentanaDialogoAgregarAudio(
-        show =  viewModel.showAudio ,
-        onDismiss = {
-            audioRecorder.stop()
-            viewModel.updateShowAudio(false)
-        },
-        onConfirm = {
-            viewModel.updateFileNumb(viewModel.fileNumb+1)
-            Log.d("filename",""+viewModel.fileNumb)
-            audioRecorder.start(File("dummy"),viewModel.fileNumb)
-            viewModel.updatehasAudio(true)
-        },
-        titulo = stringResource(id = R.string.audio),
-        text = stringResource(id = R.string.audioTexto)
-    )
     LazyColumn(
         contentPadding=contentPadding,
         modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small))){
@@ -233,27 +218,7 @@ fun AppEditarNotaTarea(
                     VideoCapture(viewModel = viewModel, modifier = modifier)
                     Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
 
-                    val botonMicrofono = LocalContext.current.applicationContext
-                    Button(
-                        onClick = {
-                            viewModel.updateShowAudio(true)
-                            Toast.makeText(botonMicrofono, R.string.audio, Toast.LENGTH_SHORT).show()
-                        }
-                    ) {
-                        Box{
-                            Image(
-                                painter = painterResource(id = R.drawable.microfono),
-                                contentDescription = null,
-                                modifier = modifier
-                                    .size(
-                                        width = dimensionResource(R.dimen.pequeño),
-                                        height = dimensionResource(R.dimen.pequeño)
-                                    )
-                                    .aspectRatio(1f),
-                                contentScale = ContentScale.Crop
-                            )
-                        }
-                    }
+                    Recordatorio(viewModel = viewModel, modifier = modifier)
                 }
             }
         }
@@ -323,7 +288,7 @@ fun parteDeArriba2CompactaEditar(
                 onExpandedChange = {viewModel.actualizarExpandidoTipo(it)}
             ) {
                 TextField(
-                    value = viewModel.opcion,
+                    value = "",
                     onValueChange = {},
                     readOnly = true,
                     label = { Text(stringResource(id = R.string.tipo)) },
@@ -343,6 +308,7 @@ fun parteDeArriba2CompactaEditar(
                         onClick = {
                             viewModel.actualizarOpcion(texto1)
                             viewModel.expandidoTipo=false
+                            viewModel.updateRecordatorio(false)
                         }
                     )
                     DropdownMenuItem(
@@ -350,6 +316,7 @@ fun parteDeArriba2CompactaEditar(
                         onClick = {
                             viewModel.actualizarOpcion(texto2)
                             viewModel.expandidoTipo=false
+                            viewModel.updateRecordatorio(true)
                         }
                     )
                 }
@@ -421,7 +388,7 @@ fun parteDeArriba2ExtendidaEditar(
                 onExpandedChange = {viewModel.actualizarExpandidoTipo(it)}
             ) {
                 TextField(
-                    value = viewModel.opcion,
+                    value = "",
                     onValueChange = {},
                     readOnly = true,
                     label = { Text(stringResource(id = R.string.tipo)) },
@@ -451,7 +418,6 @@ fun parteDeArriba2ExtendidaEditar(
                     )
                 }
             }
-            //Spacer(Modifier.width(dimensionResource(id = R.dimen.padding_smaller)))
             val botonListo = LocalContext.current.applicationContext
             IconButton(
                 onClick = {
@@ -633,7 +599,9 @@ private fun opcionesRecordatorios(
                             var time= LocalTime.now()
                             var time2= LocalTime.of(viewModel.hour,viewModel.minute,0)
                             val dif=time.until(time2, ChronoUnit.MILLIS)
-                            Notificaciones(dif,viewModel)
+                            if(dif>0){
+                                Notificaciones(dif,viewModel)
+                            }
                             viewModel.updateShowOption(false)
                         }
                     }
@@ -1033,6 +1001,7 @@ private fun VideoCapture(
         onResult = { success ->
             if(success){
                 viewModel.updatehasVideo(success)
+                viewModel.updateVideoUri(uri)
                 viewModel.updateUrisVideoList(uri)
             }
         }

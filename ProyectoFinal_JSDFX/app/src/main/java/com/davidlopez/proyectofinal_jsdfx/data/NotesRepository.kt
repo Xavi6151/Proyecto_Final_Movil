@@ -1,5 +1,6 @@
 package com.davidlopez.proyectofinal_jsdfx.data
 
+import android.net.Uri
 import kotlinx.coroutines.flow.Flow
 
 interface NotesRepository {
@@ -18,20 +19,15 @@ interface NotesRepository {
     fun getAllImages(id: Int): Flow<List<String>>
     suspend fun deleteAllImages(id: Int)
     suspend fun insertImage(imageNotaEntity: ImageEntity)
-    suspend fun deleteImage(imageNotaEntity: ImageEntity)
-    suspend fun updateImage(imageNotaEntity: ImageEntity)
+    suspend fun upTraImagenes(listaUris: List<Uri?>, id: Int)
 
     //video
     fun getAllVideos(id: Int): Flow<List<String>>
     suspend fun deleteAllVideos(id: Int)
     suspend fun insertVideo(videoNotaEntity: VideoEntity)
-    suspend fun deleteVideo(videoNotaEntity: VideoEntity)
-    suspend fun updateVideo(videoNotaEntity: VideoEntity)
+    suspend fun upTraVideos(listaUris: List<Uri?>, id: Int)
 
     //audio
     fun getAllAudios(id: Int): Flow<List<String>>
-    suspend fun deleteAllAudios(id: Int)
     suspend fun insertAudio(audioNotaEntity: AudioEntity)
-    suspend fun deleteAudio(audioNotaEntity: AudioEntity)
-    suspend fun updateAudio(audioNotaEntity: AudioEntity)
 }
